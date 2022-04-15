@@ -2,15 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/go-redis/redis/v8"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
 	fmt.Println("hi")
-	rdb := redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
-		Password: "",
-		DB: 0,
-	})
+	err := godotenv.Load()
+	if err != nil {
+		panic(fmt.Sprintln("big problems!"))
+	}
 
 }

@@ -21,7 +21,6 @@ func InitializeStore() *Redis {
 	redisClient := redis.NewClient(&redis.Options{
 		Addr: os.Getenv("REDIS_ADDR"),
 		Password: os.Getenv("REDIS_PASSWORD"),
-		DB: 0,
 	})
 	_, err := redisClient.Ping(ctx).Result()
 	if err != nil {

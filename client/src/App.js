@@ -1,24 +1,29 @@
-import logo from './logo.svg';
-import './App.css';
-
+import { useState } from "react";
+import { ThemeProvider } from "styled-components";
+import Button from "./components/ui/Button";
+import Header from "./components/ui/Header";
+import TextInput from "./components/ui/TextInput";
+import theme from "./theme";
 function App() {
+  const [s, setS] = useState("");
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={theme}>
+      {/* <Button onClick={() => console.log("hi")}>add</Button>
+      <Header type="h1">dfdsdsf</Header>
+      <Header type="h2">dfdsdsf</Header>
+      <TextInput
+        variant="large"
+        value={s}
+        onChange={(event) => setS(event.target.value)}
+        placeholder="username"
+      ></TextInput>
+      <TextInput
+        variant="small"
+        value={s}
+        onChange={(event) => setS(event.target.value)}
+      ></TextInput> */}
+    </ThemeProvider>
   );
 }
 

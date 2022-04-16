@@ -1,6 +1,5 @@
 # This is a basic workflow to help you get started with Actions
-
-name: RUN CI
+name: Run CI
 
 # Controls when the workflow will run
 on:
@@ -20,9 +19,9 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Install Go
-      - uses: actions/setup-go@v3
+        uses: actions/setup-go@v3
         with:
-          go-version: '^1.18.0' # The Go version to download (if necessary) and use.
+          go-version: '1.18.0' # The Go version to download (if necessary) and use.
       
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -38,7 +37,7 @@ jobs:
         with:
           push: false
           tags: ${{ github.event.repository.name }}:latest, ${{ github.repository }}:latest
-      
+    
       - name: Run functional tests
         run:  go test -v ./...
         

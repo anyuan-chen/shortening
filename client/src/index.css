@@ -6,19 +6,23 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   --ocean: rgba(0, 84, 119, 1);
+  --ocean60: rgba(0, 84, 119, 0.6);
+
   --sky: rgba(192, 218, 244, 1);
   --beach: rgba(233, 218, 193, 0.699999988079071);
   --teal: rgba(84, 186, 185, 1);
   --background: rgba(251, 248, 241, 1);
 }
-button, input[type="submit"], input[type="reset"] {
-	background: none;
-	color: inherit;
-	border: none;
-	padding: 0;
-	font: inherit;
-	cursor: pointer;
-	outline: inherit;
+button,
+input[type="submit"],
+input[type="reset"] {
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
 }
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
@@ -96,25 +100,25 @@ h6 {
 }
 
 @font-face {
-  font-family: 'ITC Avant Garde';
-  src: url('./fonts/ITCAvantGardeStd-Md.eot');
-  src: local('ITC Avant Garde Gothic Std Medium'), local('ITCAvantGardeStd-Md'),
-      url('./fonts/ITCAvantGardeStd-Md.eot?#iefix') format('embedded-opentype'),
-      url('./fonts/ITCAvantGardeStd-Md.woff2') format('woff2'),
-      url('./fonts/ITCAvantGardeStd-Md.woff') format('woff'),
-      url('./fonts/ITCAvantGardeStd-Md.ttf') format('truetype');
+  font-family: "ITC Avant Garde";
+  src: url("./fonts/ITCAvantGardeStd-Md.eot");
+  src: local("ITC Avant Garde Gothic Std Medium"), local("ITCAvantGardeStd-Md"),
+    url("./fonts/ITCAvantGardeStd-Md.eot?#iefix") format("embedded-opentype"),
+    url("./fonts/ITCAvantGardeStd-Md.woff2") format("woff2"),
+    url("./fonts/ITCAvantGardeStd-Md.woff") format("woff"),
+    url("./fonts/ITCAvantGardeStd-Md.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'ITC Avant Garde';
-  src: url('./fonts/ITCAvantGardeStd-Demi.eot');
-  src: local('ITC Avant Garde Gothic Std Demi'), local('ITCAvantGardeStd-Demi'),
-      url('./fonts/ITCAvantGardeStd-Demi.eot?#iefix') format('embedded-opentype'),
-      url('./fonts/ITCAvantGardeStd-Demi.woff2') format('woff2'),
-      url('./fonts/ITCAvantGardeStd-Demi.woff') format('woff'),
-      url('./fonts/ITCAvantGardeStd-Demi.ttf') format('truetype');
+  font-family: "ITC Avant Garde";
+  src: url("./fonts/ITCAvantGardeStd-Demi.eot");
+  src: local("ITC Avant Garde Gothic Std Demi"), local("ITCAvantGardeStd-Demi"),
+    url("./fonts/ITCAvantGardeStd-Demi.eot?#iefix") format("embedded-opentype"),
+    url("./fonts/ITCAvantGardeStd-Demi.woff2") format("woff2"),
+    url("./fonts/ITCAvantGardeStd-Demi.woff") format("woff"),
+    url("./fonts/ITCAvantGardeStd-Demi.ttf") format("truetype");
   font-weight: 600;
   font-style: normal;
 }

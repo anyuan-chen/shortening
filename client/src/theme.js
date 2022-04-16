@@ -21,6 +21,7 @@ const theme = {
     fontWeight: 400,
     fontSize: "32px",
     lineHeight: "38px",
+    color: "var(--ocean)",
   },
   f1: {
     fontFamily: "ITC Avant Garde",
@@ -28,6 +29,9 @@ const theme = {
     fontWeight: 400,
     fontSize: "32px",
     lineHeight: "38px",
+    color: "var(--ocean60)",
+
+
   },
   f2: {
     fontFamily: "ITC Avant Garde",
@@ -35,6 +39,8 @@ const theme = {
     fontWeight: 400,
     fontSize: "24px",
     lineHeight: "29px",
+    color: "black",
+
   },
   b1: {
     fontFamily: "ITC Avant Garde",

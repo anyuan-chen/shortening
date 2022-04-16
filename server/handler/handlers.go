@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+
 	"github.com/anyuan-chen/urlshortener/server/shortener"
 	"github.com/anyuan-chen/urlshortener/server/store"
 )
@@ -14,6 +15,9 @@ import (
 
 func CreateShortUrl(w http.ResponseWriter, r *http.Request){
 	// /create/shortlinkhere
+	type response struct {
+		Url string `json:"url"`
+	}
 	pathElements := strings.Split(r.URL.Path, "/")
 	params := r.URL.Query()
 	if len(params["user_id"]) == 0 {
@@ -23,7 +27,7 @@ func CreateShortUrl(w http.ResponseWriter, r *http.Request){
 	store.InsertUrl(shortenedUrl, pathElements[len(pathElements)-1], params["user_id"][0])
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	json.NewEncoder(w).Encode("status: success")
+	json.NewEncoder(w).Encode(response{shortenedUrl})
 }
 
 func Redirect(w http.ResponseWriter, r *http.Request){

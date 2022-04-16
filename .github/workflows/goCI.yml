@@ -28,6 +28,9 @@ jobs:
       
       - name: Go to Backend
         run: cd server
+        
+      - name: where am i
+        run: ls
       
       - name: Fetch required Go modules
         run: go mod download

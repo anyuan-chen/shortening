@@ -39,7 +39,7 @@ jobs:
         with:
           push: false
           tags: ${{ github.event.repository.name }}:latest, ${{ github.repository }}:latest
-          context: "{{defaultContext}}:server"
+          context: "./server"
 
     
       - name: Run functional tests

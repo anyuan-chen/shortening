@@ -40,6 +40,7 @@ jobs:
           push: false
           tags: ${{ github.event.repository.name }}:latest, ${{ github.repository }}:latest
           context: "./server"
+          file: ./server/Dockerfile
 
     
       - name: Run functional tests

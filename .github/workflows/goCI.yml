@@ -26,27 +26,24 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
       
-      - name: Go to Backend
-        run: cd server
-        
-      - name: where am i
-        run: ls
-      
       - name: Fetch required Go modules
         run: go mod download
-      
+        working-directory: ./server
+
       - name: Build
         run: go build -v ./...
+        working-directory: ./server
       
       - name: Build Docker Image
         uses: docker/build-push-action@v2
         with:
           push: false
           tags: ${{ github.event.repository.name }}:latest, ${{ github.repository }}:latest
+
     
       - name: Run functional tests
         run:  go test -v ./...
-        
+        working-directory: ./server
         
         
       

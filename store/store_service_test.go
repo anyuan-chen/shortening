@@ -3,7 +3,6 @@ package store
 import (
 	"math/rand"
 	"testing"
-	"github.com/anyuan-chen/urlshortener/server/util"
 	"github.com/stretchr/testify/assert"
 )
 var testStore = &Redis{}

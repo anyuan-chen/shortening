@@ -9,19 +9,20 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Button onClick={() => console.log("hi")}>add</Button>
+      {/* <Button onClick={() => console.log("hi")}>add</Button>
       <Header type="h1">dfdsdsf</Header>
       <Header type="h2">dfdsdsf</Header>
       <TextInput
         variant="large"
         value={s}
         onChange={(event) => setS(event.target.value)}
+        placeholder="username"
       ></TextInput>
       <TextInput
         variant="small"
         value={s}
         onChange={(event) => setS(event.target.value)}
-      ></TextInput>
+      ></TextInput> */}
     </ThemeProvider>
   );
 }

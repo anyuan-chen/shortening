@@ -2,19 +2,15 @@ package store
 
 import (
 	"math/rand"
-	"fmt"
 	"testing"
 
-	"github.com/joho/godotenv"
+	"github.com/anyuan-chen/urlshortener/server/util"
 	"github.com/stretchr/testify/assert"
 )
 var testStore = &Redis{}
 
 func init() {
-	err := godotenv.Load("../.env")
-	if err != nil {
-		panic(fmt.Sprintln("big problems!"))
-	}
+	util.LoadEnv()
 	testStore = InitializeStore()
 }
 
@@ -35,6 +31,6 @@ func TestInsertionAndRetrieval(t *testing.T) {
 	longURL := randomString(8)
 	userUUId := "andrew"
 	InsertUrl(shortURL, longURL, userUUId)
-	retrieved := RetrieveUrl(shortURL)
+	retrieved, _ := RetrieveUrl(shortURL)
 	assert.Equal(t, longURL, retrieved)
 }

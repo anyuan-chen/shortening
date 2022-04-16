@@ -1,17 +1,19 @@
 const theme = {
   h1: {
-    fontFamily: "ITC Avant Garde Gothic Std",
+    fontFamily: "ITC Avant Garde",
     fontStyle: "normal",
     fontWeight: 600,
     fontSize: "128px",
     lineHeight: "154px",
+    color: "var(--ocean)",
   },
   h2: {
-    fontFamily: "ITC Avant Garde Gothic Std",
+    fontFamily: "ITC Avant Garde",
     fontStyle: "normal",
     fontWeight: 600,
     fontSize: "64px",
     lineHeight: "77px",
+    color: "var(--ocean)",
   },
   h3: {
     fontFamily: "ITC Avant Garde Gothic Std",
@@ -21,14 +23,14 @@ const theme = {
     lineHeight: "38px",
   },
   f1: {
-    fontFamily: "ITC Avant Garde Gothic Std",
+    fontFamily: "ITC Avant Garde",
     fontStyle: "normal",
     fontWeight: 400,
     fontSize: "32px",
     lineHeight: "38px",
   },
   f2: {
-    fontFamily: "ITC Avant Garde Gothic Std",
+    fontFamily: "ITC Avant Garde",
     fontStyle: "normal",
     fontWeight: 400,
     fontSize: "24px",
@@ -40,7 +42,7 @@ const theme = {
     fontWeight: 400,
     fontSize: "32px",
     lineHeight: "38px",
-    color: "var(--ocean)"
+    color: "var(--ocean)",
   },
 };
 

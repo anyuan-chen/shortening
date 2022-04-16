@@ -106,3 +106,15 @@ h6 {
   font-weight: 400;
   font-style: normal;
 }
+
+@font-face {
+  font-family: 'ITC Avant Garde';
+  src: url('./fonts/ITCAvantGardeStd-Demi.eot');
+  src: local('ITC Avant Garde Gothic Std Demi'), local('ITCAvantGardeStd-Demi'),
+      url('./fonts/ITCAvantGardeStd-Demi.eot?#iefix') format('embedded-opentype'),
+      url('./fonts/ITCAvantGardeStd-Demi.woff2') format('woff2'),
+      url('./fonts/ITCAvantGardeStd-Demi.woff') format('woff'),
+      url('./fonts/ITCAvantGardeStd-Demi.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}

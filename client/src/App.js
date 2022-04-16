@@ -1,10 +1,10 @@
-import "./App.css";
 import { ThemeProvider } from "styled-components";
-
+import Button from "./components/ui/Button";
+import theme from "./theme";
 function App() {
   return (
-    <ThemeProvider>
-      <div></div>
+    <ThemeProvider theme={theme}>
+      <Button>add</Button>
     </ThemeProvider>
   );
 }

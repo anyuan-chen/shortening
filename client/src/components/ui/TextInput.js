@@ -8,7 +8,7 @@ const Large = styled.input`
   line-height: ${(props) => props.theme.f1.lineHeight};
   color: ${(props) => props.theme.f1.color};
   padding: 0.5rem 1rem;
-  border: 0;
+  border: 2px solid hsl(37, 14%, 64%);
   background: var(--beach);
   outline: none;
   border-radius: 16px;
@@ -29,7 +29,7 @@ const Small = styled.input`
 `;
 
 export default function TextInput({ variant, value, onChange, placeholder }) {
-  if (variant === "large") {
+  if (variant === "f1") {
     return (
       <Large
         type="text"
@@ -38,7 +38,7 @@ export default function TextInput({ variant, value, onChange, placeholder }) {
         placeholder={placeholder}
       ></Large>
     );
-  } else if (variant === "small") {
+  } else if (variant === "f2") {
     return (
       <Small
         type="text"

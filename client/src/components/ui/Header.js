@@ -16,10 +16,10 @@ const H2 = styled.h2`
     color: ${(props) => props.theme.h2.color};
 `;
 
-export default function Header({ children, type }) {
-  if (type === "h1") {
+export default function Header({ children, variant }) {
+  if (variant === "h1") {
     return <H1>{children}</H1>;
-  } else if (type === "h2") {
+  } else if (variant === "h2") {
     return <H2>{children}</H2>;
   }
   return <h1>not configured properly!</h1>;

@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import React from "react";
 const StyledButton = styled.button`
-  background: #c0daf4;
+  background-color: var(--blue);
   border-radius: 16px;
   display: flex;
   align-items: center;

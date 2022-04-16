@@ -7,7 +7,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   --ocean: rgba(0, 84, 119, 1);
   --ocean60: rgba(0, 84, 119, 0.6);
-
+  --blue: #008AB6;
   --sky: rgba(192, 218, 244, 1);
   --beach: rgba(233, 218, 193, 0.699999988079071);
   --teal: rgba(84, 186, 185, 1);

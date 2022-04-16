@@ -2,9 +2,11 @@ package store
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"time"
+
 	"github.com/go-redis/redis/v8"
 )
 
@@ -30,20 +32,22 @@ func InitializeStore() *Redis {
 	return storeService
 }
 
-func InsertUrl(short string, original string, userId string){
+func InsertUrl(short string, original string, userId string) error {
 	err := storeService.redisClient.Set(ctx, short, original, CacheDuration).Err()
 	if err != nil {
-		panic(fmt.Sprintf("Failed to save a specific redis key: error: %v - shortUrl: %v - originalUrl: %v", err, short, original))
+		return err
+		//panic(fmt.Sprintf("Failed to save a specific redis key: error: %v - shortUrl: %v - originalUrl: %v", err, short, original))
 	}
+	return nil
 }
 
-func RetrieveUrl (short string) string{
+func RetrieveUrl (short string) (string, error){
 	result, err := storeService.redisClient.Get(ctx, short).Result()
 	if err != nil {
 		if err == redis.Nil {
-			panic(fmt.Sprintf("this key doesn't exist in redis"))
+			return "", errors.New("this key doesn't exist in redis")
 		}
 		panic(fmt.Sprintf("RetriveUrl fail - Error: %v - ShortUrl: %v", err, short))
 	}
-	return result
+	return result, nil
 }

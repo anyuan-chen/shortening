@@ -31,6 +31,6 @@ func TestInsertionAndRetrieval(t *testing.T) {
 	longURL := randomString(8)
 	userUUId := "andrew"
 	InsertUrl(shortURL, longURL, userUUId)
-	retrieved := RetrieveUrl(shortURL)
+	retrieved, _ := RetrieveUrl(shortURL)
 	assert.Equal(t, longURL, retrieved)
 }

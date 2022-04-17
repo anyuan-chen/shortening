@@ -8,6 +8,6 @@ import (
 func LoadEnv (){
 	err := godotenv.Load()
 	if err != nil {
-		panic(fmt.Sprintln("big problems!"))
+		panic(fmt.Sprintln(err))
 	}
 }

@@ -28,6 +28,13 @@ jobs:
 
       - name: Fetch required Go modules
         run: go mod download
+        
+      - name: Create env file
+        run: |
+          touch .env
+          echo REDIS_ADDR=${{ secrets.REDIS_ADDR }} >> .env
+          echo REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }} >> .env
+          cat .env
 
       - name: Build
         run: go build -v ./...

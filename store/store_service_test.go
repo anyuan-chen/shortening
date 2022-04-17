@@ -1,9 +1,8 @@
 package store
 
 import (
-	"math/rand"
+	"math/rand" 
 	"testing"
-
 	"github.com/stretchr/testify/assert"
 )
 var testStore = &Redis{}
@@ -27,7 +26,7 @@ func TestInsertionAndRetrieval(t *testing.T) {
 	} 
 	shortURL := randomString(8)
 	longURL := randomString(8)
-	userUUId := "andrew"
+	userUUId := "andrew"  
 	InsertUrl(shortURL, longURL, userUUId)
 	retrieved, _ := RetrieveUrl(shortURL)
 	assert.Equal(t, longURL, retrieved)

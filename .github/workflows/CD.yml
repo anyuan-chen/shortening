@@ -26,7 +26,7 @@ jobs:
       run: go build -v ./..
     - name: Build and Push Docker Image
       id: docker_build
-      uses: docker/build_push_action@v2
+      uses: docker/build-push-action@v2
       with:
         push: true
         tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}:latest

@@ -21,6 +21,8 @@ jobs:
         go-version: 1.18.0
     - name: Checkout Code
       uses: actions/checkout@v3
+    - name: pwd
+      run: ls
     - name: Fetch required modules
       run: go mod download
     - name: Build

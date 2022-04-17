@@ -26,7 +26,7 @@ jobs:
     - name: Fetch required modules
       run: go mod download
     - name: Build
-      run: go build -v ./..
+      run: go build -v ./...
     - name: Build and Push Docker Image
       id: docker_build
       uses: docker/build-push-action@v2

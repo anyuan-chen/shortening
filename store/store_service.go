@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"time"
-
 	"github.com/go-redis/redis/v8"
 )
 

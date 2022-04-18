@@ -4,12 +4,34 @@ import (
 	"context"
 	"database/sql"
 	"log"
+	"os"
 
 	"github.com/cockroachdb/cockroach-go/crdb"
 )
 
-func GetUser (db *sql.DB, id string) (string, string) {
-	rows, err := db.Query("SELECT * FROM users WHERE id= $1", id)
+// db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	defer db.Close()
+
+type Database struct {
+	db *sql.DB
+}
+
+var user_service = &Database{}
+
+func InitializeDatabase() *Database {
+	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	user_service.db = db;
+	return user_service
+}
+
+func GetUser (id string) (string, string) {
+	rows, err := user_service.db.Query("SELECT * FROM users WHERE id= $1", id)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -31,14 +53,14 @@ func GetUser (db *sql.DB, id string) (string, string) {
 	return id, profileUrl
 }
 
-func CreateUser (db *sql.DB, id string, profileUrl string ) error {
+func CreateUser ( id string, profileUrl string ) error {
 	executeQuery := func (tx *sql.Tx, id string, pfpurl string) error {
 		if _, err := tx.Exec ("INSERT INTO users (name, 'profile url') VALUES ($1, $2)", id, profileUrl); err != nil {
 			return err
 		}
 		return nil
 	}
-	err := crdb.ExecuteTx(context.Background(), db, nil, func(tx *sql.Tx) error { 
+	err := crdb.ExecuteTx(context.Background(), user_service.db, nil, func(tx *sql.Tx) error { 
 		return executeQuery(tx, id, profileUrl);
 	})
 	if err == nil {
@@ -47,8 +69,8 @@ func CreateUser (db *sql.DB, id string, profileUrl string ) error {
 	return err
 } 
 
-func GetLinksByUser (db *sql.DB, id string) map[string]string {
-	rows, err := db.Query("SELECT * FROM links WHERE userid=$1", id)
+func GetLinksByUser (id string) map[string]string {
+	rows, err := user_service.db.Query("SELECT * FROM links WHERE userid=$1", id)
 	if err != nil {
 		log.Fatal(err)
 	}

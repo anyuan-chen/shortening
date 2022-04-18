@@ -16,5 +16,4 @@ func main() {
 	r.HandleFunc("/auth/google/login", handler.OauthGoogleLogin)
 	r.HandleFunc("/auth/google/callback", handler.OauthGoogleCallback)
 	http.ListenAndServe(":8080", r)
-
 }

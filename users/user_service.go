@@ -22,7 +22,7 @@ type Database struct {
 var user_service = &Database{}
 
 func InitializeDatabase() *Database {
-	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	db, err := sql.Open("postgres", os.Getenv("COCKROACH_DB_DATABASE_URL"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -55,7 +55,7 @@ func GetUser (id string) (string, string) {
 
 func CreateUser ( id string, profileUrl string ) error {
 	executeQuery := func (tx *sql.Tx, id string, pfpurl string) error {
-		if _, err := tx.Exec ("INSERT INTO users (name, 'profile url') VALUES ($1, $2)", id, profileUrl); err != nil {
+		if _, err := tx.Exec ("INSERT INTO users (id, profile_url) VALUES ($1, $2)", id, profileUrl); err != nil {
 			return err
 		}
 		return nil

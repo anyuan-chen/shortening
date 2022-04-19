@@ -77,11 +77,72 @@ func GetLinksByUser (id string) map[string]string {
 	defer rows.Close()
 	linkMap := make(map[string]string)
 	for rows.Next() {
-		var short, long string
-		if err := rows.Scan(&short, &long); err != nil {
+		var short, long, id string
+		if err := rows.Scan(&id, &long, &short); err != nil {
 			log.Fatal(err)
 		}
 		linkMap[short] = long
 	}
 	return linkMap
+}
+
+func AddLink (id string, shorturl string, longurl string) error{
+	executeQuery := func (tx *sql.Tx, id string, shorturl string, longurl string) error {
+		if _, err := tx.Exec("INSERT INTO links (userid, longurl, shorturl) VALUES ($1, $2, $3)", id, longurl, shorturl ); err != nil {
+			return err
+		}
+		return nil
+	}
+	err := crdb.ExecuteTx(context.Background(), user_service.db, nil, func (tx *sql.Tx) error {
+		return executeQuery(tx, id, shorturl, longurl)
+	})
+	if err == nil {
+		return nil
+	}
+	return err
+}
+
+
+func deleteUser (id string) error {
+	executeQuery := func (tx *sql.Tx, id string) error {
+		if _, err := tx.Exec ("DELETE FROM users WHERE id=$1", id); err != nil {
+			return err
+		}
+		return nil
+	}
+	err := crdb.ExecuteTx(context.Background(), user_service.db, nil, func(tx *sql.Tx) error { 
+		return executeQuery(tx, id);
+	})
+	if err == nil {
+		return nil
+	}
+	return err
+}
+
+func deleteUserAndLinks (id string) error {
+	delUser := func (tx *sql.Tx, id string) error {
+		if _, err := tx.Exec ("DELETE FROM users WHERE id=$1", id); err != nil {
+			return err
+		}
+		return nil
+	}
+	delLinks := func (tx *sql.Tx, id string) error {
+		if _, err := tx.Exec("DELETE FROM links WHERE userid=$1", id); err != nil {
+			return err
+		}
+		return nil
+	}
+	err := crdb.ExecuteTx(context.Background(), user_service.db, nil, func(tx *sql.Tx) error { 
+		return delLinks(tx, id);
+	})
+	if err != nil {
+		return err
+	}
+	err = crdb.ExecuteTx(context.Background(), user_service.db, nil, func(tx *sql.Tx) error { 
+		return delUser(tx, id);
+	})
+	if err != nil {
+		return err
+	}
+	return err
 }

@@ -41,4 +41,34 @@ func TestCreateUser(t *testing.T) {
 	retid, pfp := GetUser(id)
 	assert.Equal(t, retid, id)
 	assert.Equal(t, pfp, "")
+	deleteUser(id)
 }
+
+
+func TestAddAndGetLinksByUser(t *testing.T) {
+	randomString := func (length int) string {
+		const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		b := make([]byte, length)
+		for i := range b {
+			b[i] = letterBytes[rand.Intn(len(letterBytes))]
+		}
+		return string(b)
+	} 
+	id := randomString(8)
+	err := CreateUser(id, "")
+	if err != nil {
+		log.Fatal(err)
+	}
+	AddLink(id, "one", "two");
+	links := GetLinksByUser(id)
+	flag := false
+	for key, value := range links {
+		if key == "one" && value == "two" {
+			flag = true
+		}
+	}
+	assert.Equal(t, flag, true)
+	deleteUserAndLinks(id)
+}
+
+

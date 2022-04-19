@@ -68,33 +68,39 @@ func CreateUser ( id string, profileUrl string ) error {
 	}
 	return err
 } 
-
-func GetLinksByUser (id string) map[string]string {
+type LinkInfo struct {
+	short string
+	long string
+	user_id string
+	link_id string
+}
+func GetLinksByUser (id string) []LinkInfo{
 	rows, err := user_service.db.Query("SELECT * FROM links WHERE userid=$1", id)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer rows.Close()
-	linkMap := make(map[string]string)
+	links := []LinkInfo{}
 	for rows.Next() {
-		var short, long, id string
-		if err := rows.Scan(&id, &long, &short); err != nil {
+		var short, long, id, link_id string
+		if err := rows.Scan(&id, &long, &short, &link_id); err != nil {
 			log.Fatal(err)
 		}
-		linkMap[short] = long
+		links = append(links, LinkInfo{short, long, id, link_id })
+	
 	}
-	return linkMap
+	return links
 }
 
-func AddLink (id string, shorturl string, longurl string) error{
-	executeQuery := func (tx *sql.Tx, id string, shorturl string, longurl string) error {
-		if _, err := tx.Exec("INSERT INTO links (userid, longurl, shorturl) VALUES ($1, $2, $3)", id, longurl, shorturl ); err != nil {
+func AddLink (id string, shorturl string, longurl string, link_id string) error{
+	executeQuery := func (tx *sql.Tx, id string, shorturl string, longurl string, link_id string) error {
+		if _, err := tx.Exec("INSERT INTO links (userid, longurl, shorturl, link_id) VALUES ($1, $2, $3, $4)", id, longurl, shorturl, link_id ); err != nil {
 			return err
 		}
 		return nil
 	}
 	err := crdb.ExecuteTx(context.Background(), user_service.db, nil, func (tx *sql.Tx) error {
-		return executeQuery(tx, id, shorturl, longurl)
+		return executeQuery(tx, id, shorturl, longurl, link_id)
 	})
 	if err == nil {
 		return nil
@@ -102,6 +108,21 @@ func AddLink (id string, shorturl string, longurl string) error{
 	return err
 }
 
+func DeleteLink (link_id string) error {
+	executeQuery := func (tx *sql.Tx, id string) error {
+		if _, err := tx.Exec ("DELETE FROM links WHERE link_id=$1", id); err != nil {
+			return err
+		}
+		return nil
+	}
+	err := crdb.ExecuteTx(context.Background(), user_service.db, nil, func(tx *sql.Tx) error { 
+		return executeQuery(tx, link_id);
+	})
+	if err == nil {
+		return nil
+	}
+	return err
+}
 
 func deleteUser (id string) error {
 	executeQuery := func (tx *sql.Tx, id string) error {

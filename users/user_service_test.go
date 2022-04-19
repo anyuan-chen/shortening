@@ -59,11 +59,11 @@ func TestAddAndGetLinksByUser(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	AddLink(id, "one", "two");
+	AddLink(id, "one", "two", "his");
 	links := GetLinksByUser(id)
 	flag := false
-	for key, value := range links {
-		if key == "one" && value == "two" {
+	for _, link := range links {
+		if link.short == "one" && link.long == "two" {
 			flag = true
 		}
 	}
@@ -71,4 +71,11 @@ func TestAddAndGetLinksByUser(t *testing.T) {
 	deleteUserAndLinks(id)
 }
 
+func TestDeleteLink(t *testing.T) {
+	info := GetLinksByUser("guest")
+	AddLink("guest", "hi", "bye", "unique_id")
+	DeleteLink("unique_id")
+	info2 := GetLinksByUser("guest")
+	assert.Equal(t, len(info), len(info2))
+}
 

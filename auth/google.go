@@ -33,6 +33,7 @@ func GenerateStateOauthCookie(w http.ResponseWriter) string {
 	http.SetCookie(w, &cookie)
 	return state
 }
+
 func GetUserComingFromGoogle(code string) ([]byte, error) {
 	token, err := GoogleOauthConfig.Exchange(context.Background(), code)
 	if err != nil {

@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS users (
     id STRING NOT NULL,
-    "profile url" STRING,
+    profile_url STRING,
     PRIMARY KEY (id)
 );
 
@@ -10,3 +10,6 @@ CREATE TABLE IF NOT EXISTS links (
     shorturl STRING NOT NULL,
     CONSTRAINT fk_userid FOREIGN KEY (userid) REFERENCES users
 )
+
+ALTER TABLE users
+RENAME COLUMN "profile url" TO profile_url;

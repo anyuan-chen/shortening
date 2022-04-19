@@ -17,11 +17,11 @@ func OauthGoogleCallback(w http.ResponseWriter, r *http.Request){
 	}
 	data, err := auth.GetUserComingFromGoogle(r.FormValue("code"))
 	if err != nil {
-		log.Println(err.Error())
+		log.Println(err.Error()) 
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
-	fmt.Fprintf(w, "%s", data)
+	http.Redirect(w, r , fmt.Sprintf("http://www.google.com?token=%v", data) + string(data) ,http.StatusFound)
 }
 
 func OauthGoogleLogin(w http.ResponseWriter, r *http.Request){

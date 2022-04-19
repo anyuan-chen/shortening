@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+	
 	r := mux.NewRouter()
 	store.InitializeStore()
 	r.HandleFunc("/create/{url}", handler.CreateShortUrl).Methods("POST")

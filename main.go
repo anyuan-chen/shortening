@@ -16,5 +16,7 @@ func main() {
 	r.HandleFunc("/redirect/{url}", handler.RedirectURL).Methods("GET")
 	r.HandleFunc("/auth/google/login", handler.OauthGoogleLogin)
 	r.HandleFunc("/auth/google/callback", handler.OauthGoogleCallback)
+	r.HandleFunc("/auth/github/login", handler.OauthGithubLogin)
+	r.HandleFunc("/auth/github/callback", handler.OauthGithubCallback)
 	http.ListenAndServe(":8080", r)
 }

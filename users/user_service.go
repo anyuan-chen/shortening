@@ -30,7 +30,7 @@ func InitializeDatabase() *Database {
 	return user_service
 }
 
-func GetUser (id string) (string, string) {
+func GetUser (id string) (string) {
 	rows, err := user_service.db.Query("SELECT * FROM users WHERE id= $1", id)
 	if err != nil {
 		log.Fatal(err)
@@ -46,11 +46,11 @@ func GetUser (id string) (string, string) {
 
 	}
 	if count == 0 {
-		log.Fatal("user doesn't exist")
+		return ""
 	} else if count > 1 {
 		log.Fatal("more than user with this id")
 	}
-	return id, profileUrl
+	return id
 }
 
 func CreateUser ( id string, profileUrl string ) error {
@@ -68,6 +68,7 @@ func CreateUser ( id string, profileUrl string ) error {
 	}
 	return err
 } 
+
 type LinkInfo struct {
 	short string
 	long string

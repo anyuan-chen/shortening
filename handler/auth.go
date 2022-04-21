@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -11,7 +10,6 @@ import (
 	"github.com/anyuan-chen/urlshortener/server/auth"
 	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
-	"golang.org/x/oauth2"
 )
 
 func OauthGoogleCallback(w http.ResponseWriter, r *http.Request){
@@ -115,65 +113,64 @@ func OauthGithubCallback(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/dashboard", http.StatusOK)
 }
 
-func Login(w http.ResponseWriter, r *http.Request) {
-	session_id, err := r.Cookie("session_id")
-	if err != nil {
-		log.Println(err.Error())
-		http.Redirect(w, r, "http://localhost:8080/auth/google/login", http.StatusFound)
-		return
-	}
-	//check if there exists a session
-	session, err := sessionStore.Get(r, session_id.Value)
-	if err != nil {
-		log.Println(err.Error())
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
-		return
-	}
-	var client *http.Client
-	expiryTime, err := time.Parse(time.RFC3339, session.Values["expiry"].(string))
-	if err != nil {
-		log.Println(err.Error())
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
-		return
-	}
-	if session.Values["provider"] == "google" {
-		token := &oauth2.Token{
-			AccessToken: session.Values["access_token"].(string),
-			TokenType: session.Values["token_type"].(string),
-			RefreshToken: session.Values["refresh_token"].(string),
-			Expiry: expiryTime,
+func LoggedInMiddleware(next http.HandlerFunc) http.Handler {
+	return http.HandlerFunc(func (w http.ResponseWriter, r *http.Request ) {
+		ctx := context.Background()
+		session_id, err := r.Cookie("session_id")
+		if err != nil {
+			log.Println(err.Error())
+			http.Redirect(w, r, "http://localhost:8080/auth/google/login", http.StatusFound)
+			return
 		}
-		client = auth.GoogleOauthConfig.Client(context.Background(), token)
-		resp, err := auth.GetGoogleUserInfo(client)
+		//check if there exists a session
+		session, err := sessionStore.Get(r, session_id.Value)
 		if err != nil {
 			log.Println(err.Error())
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 			return
 		}
-		fmt.Print(string(resp))
-		if resp != nil {
-			http.Redirect(w, r, "https://google.com", http.StatusFound)
-		}
-	} else if session.Values["provider"] == "github" {
-		token := &oauth2.Token{
-			AccessToken: session.Values["access_token"].(string),
-			TokenType: session.Values["token_type"].(string),
-			Expiry: expiryTime,
-		}
-		client = auth.GithubOAuthConfig.Client(context.Background(), token)
-		resp, err := auth.GetGithubUserInfo(client)
-		if err != nil {
-			log.Println(err.Error())
-			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
-			return
-		}
-		fmt.Print(string(resp))
+		var client *http.Client
+		if session.Values["provider"] == "google" {
+			//get the token from the existing session
+			token, err := auth.GetGoogleToken(session)
+			if err != nil {
+				log.Println(err.Error())
+				http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+				return
+			}
+			//get http client from the session
+			client = auth.GoogleOauthConfig.Client(context.Background(), &token)
+			//test a request
+			resp, err := auth.GetGoogleUserInfo(client)
+			if err != nil {
+				log.Println(err.Error())
+				http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+				return
+			}
+			if resp != nil {
+				ctx = context.WithValue(ctx, "client", client)
+				ctx = context.WithValue(ctx, "provider", "google")
+				next.ServeHTTP(w, r.WithContext(ctx))
+			}
+		} else if session.Values["provider"] == "github" {
+			token, _ := auth.GetGithubToken(session)
+			client = auth.GithubOAuthConfig.Client(context.Background(), &token)
+			resp, err := auth.GetGithubUserInfo(client)
+			if err != nil {
+				log.Println(err.Error())
+				http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+				return
+			}
+			if resp != nil {
+				ctx = context.WithValue(ctx, "client", client)
+				ctx = context.WithValue(ctx, "provider", "github")
 
-		if resp != nil {
-			http.Redirect(w, r, "https://google.com", http.StatusFound)
-		}
-	} else { //no session found with that id
+				next.ServeHTTP(w, r.WithContext(ctx))
+			}
+		} 
+		 //no session found with that id
 		http.Redirect(w, r, "http://localhost:8080/auth/google/login", http.StatusFound)
-	}
+	})
+
 }
 

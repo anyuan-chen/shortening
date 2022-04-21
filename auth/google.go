@@ -7,10 +7,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"time"
 
+	"github.com/gorilla/sessions"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -66,4 +68,18 @@ func GetGoogleUserInfo (client *http.Client) ([]byte, error){
 		return nil, fmt.Errorf("failed to read response %s", err.Error())
 	}
 	return contents, nil
+}
+
+func GetGoogleToken (session *sessions.Session) (oauth2.Token, error) {
+	expiryTime, err := time.Parse(time.RFC3339, session.Values["expiry"].(string))
+	if err != nil {
+		log.Fatal(err)
+	}
+	token := &oauth2.Token{
+		AccessToken: session.Values["access_token"].(string),
+		TokenType: session.Values["token_type"].(string),
+		RefreshToken: session.Values["refresh_token"].(string),
+		Expiry: expiryTime,
+	}
+	return *token, nil
 }

@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -124,6 +125,7 @@ func LoggedInMiddleware(next http.HandlerFunc) http.Handler {
 		}
 		//check if there exists a session
 		session, err := sessionStore.Get(r, session_id.Value)
+		fmt.Println(session)
 		if err != nil {
 			log.Println(err.Error())
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
@@ -167,9 +169,11 @@ func LoggedInMiddleware(next http.HandlerFunc) http.Handler {
 
 				next.ServeHTTP(w, r.WithContext(ctx))
 			}
-		} 
-		 //no session found with that id
-		http.Redirect(w, r, "http://localhost:8080/auth/google/login", http.StatusFound)
+		}  else {
+			http.Redirect(w, r, "http://localhost:8080/auth/google/login", http.StatusFound)
+		}
+		//no session found with that id
+
 	})
 
 }

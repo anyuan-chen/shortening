@@ -31,7 +31,7 @@ func InitializeDatabase() *Database {
 }
 
 func GetUser (id string) (string) {
-	rows, err := user_service.db.Query("SELECT * FROM users WHERE id= $1", id)
+	rows, err := user_service.db.Query("SELECT * FROM users WHERE id = $1", id)
 	if err != nil {
 		log.Fatal(err)
 	}

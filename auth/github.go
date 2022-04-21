@@ -7,9 +7,12 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
+	"time"
 
+	"github.com/gorilla/sessions"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/github"
 )
@@ -121,4 +124,17 @@ func GetGithubData(accessToken string) (string, error) {
 
     // Convert byte slice to string and return
     return string(respbody), nil
+}
+
+func GetGithubToken(session *sessions.Session) (oauth2.Token, error){
+    expiryTime, err := time.Parse(time.RFC3339, session.Values["expiry"].(string))
+    if err != nil {
+        log.Fatal(err)
+    }
+    token := oauth2.Token{
+        AccessToken: session.Values["access_token"].(string),
+        TokenType: session.Values["token_type"].(string),
+        Expiry: expiryTime,
+    }
+    return token, nil
 }

@@ -19,9 +19,8 @@ func TestStoreInit(t *testing.T) {
 
 func TestGetUser(t *testing.T) {
 	id := "guest"
-	retid, pfp := GetUser(id)
+	retid := GetUser(id)
 	assert.Equal(t, id, retid)
-	assert.Equal(t, pfp, "")
 }
 
 func TestCreateUser(t *testing.T) {
@@ -38,9 +37,8 @@ func TestCreateUser(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	retid, pfp := GetUser(id)
+	retid := GetUser(id)
 	assert.Equal(t, retid, id)
-	assert.Equal(t, pfp, "")
 	deleteUser(id)
 }
 

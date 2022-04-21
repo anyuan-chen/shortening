@@ -65,6 +65,7 @@ func OauthGoogleCallback(w http.ResponseWriter, r *http.Request){
 		Expires: time.Now().Add(time.Hour),
 	}
 	http.SetCookie(w, &session_cookie)
+	http.Redirect(w, r, "/dashboard", http.StatusOK)
 }
 
 func OauthGithubCallback(w http.ResponseWriter, r *http.Request) {
@@ -80,14 +81,38 @@ func OauthGithubCallback(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
-	fmt.Fprintf(w, "UserInfo: %s\n", data)
-
-	// data, err := auth.GetGithubData(access_token)
-	// if err != nil {
-	// 	log.Println(err.Error()) 
-	// 	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
-	// 	return
-	// }
+	type GithubOAuthResponse struct {
+		Access_token string `json:"access_token"`
+		Token_type string `json:"token_type"`
+		Expiry string `json:"expiry"`
+	}
+	var dataJson GithubOAuthResponse
+	err = json.Unmarshal(data, &dataJson)
+	if err != nil {
+		log.Println(err.Error()) 
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+	uuid := uuid.New().String()
+	session, _ := sessionStore.Get(r, uuid)
+	session.Values["access_token"] = dataJson.Access_token
+	session.Values["token_type"] = dataJson.Token_type
+	session.Values["expiry"] = dataJson.Expiry
+	session.Values["provider"] = "github"
+	err = sessions.Save(r, w)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	session_cookie := http.Cookie{
+		Name: "session_id",
+		Path: "/",
+		Value: uuid,
+		HttpOnly: true,
+		Expires: time.Now().Add(time.Hour),
+	}
+	http.SetCookie(w, &session_cookie)
+	http.Redirect(w, r, "/dashboard", http.StatusOK)
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
@@ -133,7 +158,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		token := &oauth2.Token{
 			AccessToken: session.Values["access_token"].(string),
 			TokenType: session.Values["token_type"].(string),
-			RefreshToken: session.Values["refresh_token"].(string),
 			Expiry: expiryTime,
 		}
 		client = auth.GithubOAuthConfig.Client(context.Background(), token)
@@ -143,6 +167,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 			return
 		}
+		fmt.Print(string(resp))
+
 		if resp != nil {
 			http.Redirect(w, r, "https://google.com", http.StatusFound)
 		}

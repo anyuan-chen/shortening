@@ -1,10 +1,11 @@
 package auth
 
 import (
-	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -22,51 +23,77 @@ var GithubOAuthConfig = &oauth2.Config{
 }
 
 
-func GetUserComingFromGithub(code string) (string, error) {
+
+func GetUserComingFromGithub(code string) ([]byte, error) {
+    token, err := GithubOAuthConfig.Exchange(context.Background(), code)
+    if err != nil {
+        return nil, err
+    }
+    val, err := json.Marshal(token)
+    if err != nil {
+        return nil, err
+    }
+    return val, nil
+
     // Set us the request body as JSON
-    requestBodyMap := map[string]string{
-        "client_id": GithubOAuthConfig.ClientID,
-        "client_secret": GithubOAuthConfig.ClientSecret,
-        "code": code,
-    }
-    requestJSON, _ := json.Marshal(requestBodyMap)
+    // requestBodyMap := map[string]string{
+    //     "client_id": GithubOAuthConfig.ClientID,
+    //     "client_secret": GithubOAuthConfig.ClientSecret,
+    //     "code": code,
+    // }
+    // requestJSON, _ := json.Marshal(requestBodyMap)
 
-    // POST request to set URL
-    req, reqerr := http.NewRequest(
-        "POST",
-        "https://github.com/login/oauth/access_token",
-        bytes.NewBuffer(requestJSON),
-    )
-    if reqerr != nil {
-        return "", errors.New(reqerr.Error())
-    }
-    req.Header.Set("Content-Type", "application/json")
-    req.Header.Set("Accept", "application/json")
+    // // POST request to set URL
+    // req, reqerr := http.NewRequest(
+    //     "POST",
+    //     "https://github.com/login/oauth/access_token",
+    //     bytes.NewBuffer(requestJSON),
+    // )
+    // if reqerr != nil {
+    //     return "", errors.New(reqerr.Error())
+    // }
+    // req.Header.Set("Content-Type", "application/json")
+    // req.Header.Set("Accept", "application/json")
 
-    // Get the response
-    resp, resperr := http.DefaultClient.Do(req)
-    if resperr != nil {
-        return "", errors.New(resperr.Error())
-    }
+    // // Get the response
+    // resp, resperr := http.DefaultClient.Do(req)
+    // if resperr != nil {
+    //     return "", errors.New(resperr.Error())
+    // }
 
-    // Response body converted to stringified JSON
-    respbody, _ := ioutil.ReadAll(resp.Body)
+    // // Response body converted to stringified JSON
+    // respbody, _ := ioutil.ReadAll(resp.Body)
 
-    // Represents the response received from Github
-    type githubAccessTokenResponse struct {
-        AccessToken string `json:"access_token"`
-        TokenType   string `json:"token_type"`
-        Scope       string `json:"scope"`
-    }
+    // // Represents the response received from Github
+    // type githubAccessTokenResponse struct {
+    //     AccessToken string `json:"access_token"`
+    //     TokenType   string `json:"token_type"`
+    //     Scope       string `json:"scope"`
+    // }
 
-    // Convert stringified JSON to a struct object of type githubAccessTokenResponse
-    var ghresp githubAccessTokenResponse
-    json.Unmarshal(respbody, &ghresp)
+    // // Convert stringified JSON to a struct object of type githubAccessTokenResponse
+    // var ghresp githubAccessTokenResponse
+    // json.Unmarshal(respbody, &ghresp)
 
-    // Return the access token (as the rest of the
-    // details are relatively unnecessary for us)
-    return ghresp.AccessToken, nil
+    // // Return the access token (as the rest of the
+    // // details are relatively unnecessary for us)
+    // return ghresp.AccessToken, nil
 }
+const oauthGithubUrlAPI = "https://api.github.com/user"
+func GetGithubUserInfo(client *http.Client) ([]byte, error) {
+    // Get request to a set URL
+    response, err := client.Get(oauthGithubUrlAPI)
+    if err != nil {
+		return nil, fmt.Errorf("failed to retrieve user info %s", err.Error())
+	}
+	defer response.Body.Close()
+	contents, err := io.ReadAll(response.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response %s", err.Error())
+	}
+	return contents, nil
+}
+
 func GetGithubData(accessToken string) (string, error) {
     // Get request to a set URL
     req, reqerr := http.NewRequest(

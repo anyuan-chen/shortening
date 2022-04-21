@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -22,7 +23,7 @@ var GoogleOauthConfig = &oauth2.Config{
 	Endpoint: google.Endpoint,
 }
 
-const oauthGoogleUrlAPI = "https://www.googleapis.com/oauth2/v2/userinfo?access_token="
+const oauthGoogleUrlAPI = "https://www.googleapis.com/oauth2/v2/userinfo"
 
 func GenerateStateOauthCookie(w http.ResponseWriter) string {
 	var expiration = time.Now().Add(20 * time.Minute)
@@ -35,11 +36,27 @@ func GenerateStateOauthCookie(w http.ResponseWriter) string {
 }
 
 func GetUserComingFromGoogle(code string) ([]byte, error) {
-	token, err := GoogleOauthConfig.Exchange(context.Background(), code)
-	if err != nil {
-		return nil, fmt.Errorf("code exchange gone wrong!! %s", err.Error())
-	}
-	response, err := http.Get(oauthGoogleUrlAPI + token.AccessToken)
+	token, _ := GoogleOauthConfig.Exchange(context.Background(), code)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("code exchange gone wrong!! %s", err.Error())
+	// }
+	// response, err := http.Get(oauthGoogleUrlAPI + token.AccessToken)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("failed to retrieve user info %s", err.Error())
+	// }
+	// defer response.Body.Close()
+	// contents, err := io.ReadAll(response.Body)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("failed to read response %s", err.Error())
+	// }
+	val, _ := json.Marshal(token);
+	fmt.Println(val)
+	return val, nil
+
+}
+
+func GetGoogleUserInfo (client *http.Client) ([]byte, error){
+	response, err := client.Get(oauthGoogleUrlAPI)
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve user info %s", err.Error())
 	}
@@ -49,5 +66,4 @@ func GetUserComingFromGoogle(code string) ([]byte, error) {
 		return nil, fmt.Errorf("failed to read response %s", err.Error())
 	}
 	return contents, nil
-
 }

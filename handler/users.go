@@ -10,8 +10,8 @@ import (
 )
 
  func GetUser(w http.ResponseWriter, r *http.Request )  {
-	client := r.Context().Value("client")
-	provider := r.Context().Value("provider").(string)
+	client := r.Context().Value(Client{})
+	provider := r.Context().Value(Provider{}).(string)
 	var resp []byte
 	var err error
 	if provider == "github"{

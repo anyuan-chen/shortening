@@ -6,24 +6,26 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/anyuan-chen/urlshortener/server/auth"
 	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
 )
-
+type Client struct{}
+type Provider struct{}
 func OauthGoogleCallback(w http.ResponseWriter, r *http.Request){
 	oauthState, _ := r.Cookie("oauthstate")
 	if r.FormValue("state") != oauthState.Value {
 		log.Println("invalid oauth state - this has been tampered with")
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		http.Redirect(w, r, os.Getenv("FRONTEND_URL"), http.StatusTemporaryRedirect)
 		return
 	}
 	data , err := auth.GetUserComingFromGoogle(r.FormValue("code"))
 	if err != nil {
 		log.Println(err.Error()) 
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		http.Redirect(w, r, os.Getenv("FRONTEND_URL"), http.StatusTemporaryRedirect)
 		return
 	}
 	type GoogleOauthResponse struct {
@@ -36,14 +38,14 @@ func OauthGoogleCallback(w http.ResponseWriter, r *http.Request){
 	err = json.Unmarshal(data, &dataJson)
 	if err != nil {
 		log.Println(err.Error()) 
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		http.Redirect(w, r, os.Getenv("FRONTEND_URL"), http.StatusTemporaryRedirect)
 		return
 	}
 	uuid := uuid.New().String();
 	session, err := sessionStore.Get(r, uuid)
 	if err != nil {
 		log.Println(err.Error()) 
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		http.Redirect(w, r, os.Getenv("FRONTEND_URL"), http.StatusTemporaryRedirect)
 		return
 	}
 	session.Values["access_token"] = dataJson.Access_token;
@@ -60,24 +62,24 @@ func OauthGoogleCallback(w http.ResponseWriter, r *http.Request){
 		Name: "session_id",
 		Path: "/",
 		Value: uuid,
-		HttpOnly: true,
+		HttpOnly: false,
 		Expires: time.Now().Add(time.Hour),
 	}
 	http.SetCookie(w, &session_cookie)
-	http.Redirect(w, r, "/dashboard", http.StatusOK)
+	http.Redirect(w, r, os.Getenv("FRONTEND_URL") + "/dashboard", http.StatusTemporaryRedirect)
 }
 
 func OauthGithubCallback(w http.ResponseWriter, r *http.Request) {
 	oauthState, _ := r.Cookie("oauthstate")
 	if r.FormValue("state") != oauthState.Value {
 		log.Println("invalid oauth state - this has been tampered with")
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		http.Redirect(w, r, os.Getenv("FRONTEND_URL"), http.StatusTemporaryRedirect)
 		return
 	}
 	data , err := auth.GetUserComingFromGithub(r.FormValue("code"))
 	if err != nil {
 		log.Println(err.Error()) 
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		http.Redirect(w, r, os.Getenv("FRONTEND_URL"), http.StatusTemporaryRedirect)
 		return
 	}
 	type GithubOAuthResponse struct {
@@ -89,7 +91,7 @@ func OauthGithubCallback(w http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal(data, &dataJson)
 	if err != nil {
 		log.Println(err.Error()) 
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		http.Redirect(w, r, os.Getenv("FRONTEND_URL"), http.StatusTemporaryRedirect)
 		return
 	}
 	uuid := uuid.New().String()
@@ -107,11 +109,11 @@ func OauthGithubCallback(w http.ResponseWriter, r *http.Request) {
 		Name: "session_id",
 		Path: "/",
 		Value: uuid,
-		HttpOnly: true,
+		HttpOnly: false,
 		Expires: time.Now().Add(time.Hour),
 	}
 	http.SetCookie(w, &session_cookie)
-	http.Redirect(w, r, "/dashboard", http.StatusOK)
+	http.Redirect(w, r, os.Getenv("FRONTEND_URL") + "/dashboard", http.StatusTemporaryRedirect)
 }
 
 func LoggedInMiddleware(next http.HandlerFunc) http.Handler {
@@ -120,7 +122,7 @@ func LoggedInMiddleware(next http.HandlerFunc) http.Handler {
 		session_id, err := r.Cookie("session_id")
 		if err != nil {
 			log.Println(err.Error())
-			http.Redirect(w, r, "http://localhost:8080/auth/google/login", http.StatusFound)
+			http.Redirect(w, r, os.Getenv("FRONTEND_URL") + "/login", http.StatusFound)
 			return
 		}
 		//check if there exists a session
@@ -128,7 +130,7 @@ func LoggedInMiddleware(next http.HandlerFunc) http.Handler {
 		fmt.Println(session)
 		if err != nil {
 			log.Println(err.Error())
-			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+			http.Redirect(w, r, os.Getenv("FRONTEND_URL") + "/login", http.StatusTemporaryRedirect)
 			return
 		}
 		var client *http.Client
@@ -137,7 +139,7 @@ func LoggedInMiddleware(next http.HandlerFunc) http.Handler {
 			token, err := auth.GetGoogleToken(session)
 			if err != nil {
 				log.Println(err.Error())
-				http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+				http.Redirect(w, r, os.Getenv("FRONTEND_URL") + "/login", http.StatusTemporaryRedirect)
 				return
 			}
 			//get http client from the session
@@ -146,12 +148,12 @@ func LoggedInMiddleware(next http.HandlerFunc) http.Handler {
 			resp, err := auth.GetGoogleUserInfo(client)
 			if err != nil {
 				log.Println(err.Error())
-				http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+				http.Redirect(w, r, os.Getenv("FRONTEND_URL") + "/login", http.StatusTemporaryRedirect)
 				return
 			}
 			if resp != nil {
-				ctx = context.WithValue(ctx, "client", client)
-				ctx = context.WithValue(ctx, "provider", "google")
+				ctx = context.WithValue(ctx, Client{}, client)
+				ctx = context.WithValue(ctx, Provider{}, "google")
 				next.ServeHTTP(w, r.WithContext(ctx))
 			}
 		} else if session.Values["provider"] == "github" {
@@ -160,12 +162,12 @@ func LoggedInMiddleware(next http.HandlerFunc) http.Handler {
 			resp, err := auth.GetGithubUserInfo(client)
 			if err != nil {
 				log.Println(err.Error())
-				http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+				http.Redirect(w, r, os.Getenv("FRONTEND_URL") + "/login", http.StatusTemporaryRedirect)
 				return
 			}
 			if resp != nil {
-				ctx = context.WithValue(ctx, "client", client)
-				ctx = context.WithValue(ctx, "provider", "github")
+				ctx = context.WithValue(ctx, Client{}, client)
+				ctx = context.WithValue(ctx, Provider{}, "github")
 
 				next.ServeHTTP(w, r.WithContext(ctx))
 			}
@@ -173,8 +175,68 @@ func LoggedInMiddleware(next http.HandlerFunc) http.Handler {
 			http.Redirect(w, r, "http://localhost:8080/auth/google/login", http.StatusFound)
 		}
 		//no session found with that id
-
 	})
 
 }
 
+func IsLoggedIn(w http.ResponseWriter, r *http.Request) {
+		
+		type LoggedInResponse struct {
+			LoggedIn bool `json:"logged_in"`
+		}
+		session_id, err := r.Cookie("session_id")
+		if err != nil {
+			fmt.Println("no session id")
+			response, _ := json.Marshal(LoggedInResponse{LoggedIn: false})
+			w.Write(response)
+			return
+		}
+		//check if there exists a session
+		session, err := sessionStore.Get(r, session_id.Value)
+		fmt.Println(session)
+		if err != nil {
+			fmt.Println("no session")
+			json.Marshal(LoggedInResponse{LoggedIn: false})
+			return
+		}
+		var client *http.Client
+		if session.Values["provider"] == "google" {
+			//get the token from the existing session
+			token, err := auth.GetGoogleToken(session)
+			if err != nil {
+				log.Println(err.Error())
+				http.Redirect(w, r, os.Getenv("FRONTEND_URL") + "/login", http.StatusTemporaryRedirect)
+				return
+			}
+			//get http client from the session
+			client = auth.GoogleOauthConfig.Client(context.Background(), &token)
+			//test a request
+			resp, err := auth.GetGoogleUserInfo(client)
+			if err != nil {
+				log.Println(err.Error())
+				http.Redirect(w, r, os.Getenv("FRONTEND_URL") + "/login", http.StatusTemporaryRedirect)
+				return
+			}
+			if resp != nil {
+				json.NewEncoder(w).Encode(LoggedInResponse{true})
+				return
+			}
+		} else if session.Values["provider"] == "github" {
+			token, _ := auth.GetGithubToken(session)
+			client = auth.GithubOAuthConfig.Client(context.Background(), &token)
+			resp, err := auth.GetGithubUserInfo(client)
+			if err != nil {
+				log.Println(err.Error())
+				http.Redirect(w, r, os.Getenv("FRONTEND_URL") + "/login", http.StatusTemporaryRedirect)
+				return
+			}
+			if resp != nil {
+				json.Marshal(LoggedInResponse{LoggedIn: true})
+				return
+			}
+		}  else {
+			fmt.Println("no provider")
+			json.Marshal(LoggedInResponse{LoggedIn: false})
+			return
+		}
+}

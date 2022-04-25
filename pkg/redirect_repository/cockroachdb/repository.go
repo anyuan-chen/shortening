@@ -2,6 +2,8 @@ package redis
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -31,9 +33,18 @@ func CreateRedisRepository(redis_address string, redis_password string) (redisRe
 }
 
 func (r *redisRedirectRepository) Get(shortened_link string) (string, error){
-	
+	original_link, err := r.redis.Get(context.Background(), shortened_link).Result()
+	if err != nil {
+		return "", err
+	}
+	return original_link, nil
 }
 
-func (r *redisRedirectRepository) Create(shortened_link string, original_link string, user_id string){
-
+func (r *redisRedirectRepository) Create(shortened_link string, original_link string, user_id string) error{
+	err := r.redis.Set(context.Background(), shortened_link, original_link, 0)
+	if err != nil {
+		msg := fmt.Sprintf("failed to insert shortened %s and original %s into redis", shortened_link, original_link) 
+		return errors.New(msg)
+	}
+	return nil
 }

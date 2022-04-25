@@ -18,3 +18,4 @@ type Session struct {
 	Expiry string `json:"expiry"`
 	Provider string `json:"provider"`
 }
+

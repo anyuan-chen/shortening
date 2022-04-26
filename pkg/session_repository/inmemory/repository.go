@@ -3,6 +3,7 @@ package inmemory
 
 import (
 	"errors"
+	"time"
 
 	"github.com/anyuan-chen/urlshortener/server/pkg/shortener"
 	"github.com/google/uuid"
@@ -31,7 +32,7 @@ func (s *memorySessionRepository) IsLoggedIn(session_id string) (bool, error){
 }
 
 //CreateSession takes in all the parameters for a session, creates it, then stores it in the sessionStore
-func (s *memorySessionRepository) CreateSession(access_token string, refresh_token string, token_type string, expiry string, provider string)(string, error){
+func (s *memorySessionRepository) CreateSession(access_token string, refresh_token string, token_type string, expiry time.Time, provider string)(string, error){
 	session := shortener.Session{Access_token: access_token, Refresh_token: refresh_token, Token_type: token_type, Expiry: expiry, Provider: provider}
 	var session_id string
 	for condition := true; condition; {

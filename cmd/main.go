@@ -2,7 +2,13 @@ package main
 
 import (
 	"net/http"
+	"os"
 
+	"github.com/anyuan-chen/urlshortener/server/pkg/api"
+	"github.com/anyuan-chen/urlshortener/server/pkg/link_repository/cockroachdb"
+	"github.com/anyuan-chen/urlshortener/server/pkg/redirect_repository/redis"
+	"github.com/anyuan-chen/urlshortener/server/pkg/session_repository/inmemory"
+	service "github.com/anyuan-chen/urlshortener/server/pkg/shortener/core_logic"
 	"github.com/gorilla/mux"
 )
 type Server struct {
@@ -10,6 +16,19 @@ type Server struct {
 }
 func main() {
 	r := mux.NewRouter()
+    link_handler, err := cockroachdb.CreateCockroachDB(os.Getenv("COCKROACH_DB_DATABASE_URL"))
+    if err != nil {
+        panic("error creating link_handler")
+    }
+    redirect_handler, err := redis.CreateRedisRepository(os.Getenv("REDIS_ADDR"), os.Getenv("REDIS_PASSWORD"))
+    if err != nil {
+        panic("error creating redirect_handler")
+    }
+    session_handler := &inmemory.MemorySessionRepository{}
+    session_handler.CreateSessionRepository()
+    service := service.NewLinkService(&redirect_handler, session_handler, &link_handler)
+    api := api.NewService(service)
+    http.HandleFunc("/login", api.Login)
 	http.Handle("/", &Server{r})
 	http.ListenAndServe(":8080", nil)
 }

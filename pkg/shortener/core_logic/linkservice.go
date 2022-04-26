@@ -1,4 +1,4 @@
-package shortener
+package service
 
 import (
 	"errors"

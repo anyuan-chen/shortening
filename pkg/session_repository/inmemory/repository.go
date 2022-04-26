@@ -13,13 +13,13 @@ import (
 	"github.com/google/uuid"
 )
 
-type memorySessionRepository struct {
+type MemorySessionRepository struct {
 	sessionStore map[string] shortener.Session
 	googleOAuth google.OAuthProviderGoogle	
 	githubOAuth github.OAuthProviderGithub
 }
 
-func (s *memorySessionRepository) CreateSessionRepository(){
+func (s *MemorySessionRepository) CreateSessionRepository(){
 	callback_url := os.Getenv("REDIRECT_URL")
 	google_client_secret := os.Getenv("OAUTH_CLIENT_SECRET_GOOGLE")
 	google_client_id := os.Getenv("OAUTH_CLIENT_ID_GOOGLE")
@@ -30,7 +30,7 @@ func (s *memorySessionRepository) CreateSessionRepository(){
 }
 
 //GetSession takes a session id and returns any active session with that id
-func (s *memorySessionRepository) GetSession(session_id string) (shortener.Session, error){
+func (s *MemorySessionRepository) GetSession(session_id string) (shortener.Session, error){
 	if s.sessionStore[session_id] == (shortener.Session{}){
 		return shortener.Session{}, errors.New("session not found")
 	}
@@ -39,7 +39,7 @@ func (s *memorySessionRepository) GetSession(session_id string) (shortener.Sessi
 
 //GetId takes a session id and attempts to make a call to the OAuth provider to return a user id associated with 
 //the session.
-func (s *memorySessionRepository) GetId(session_id string) (string, error){
+func (s *MemorySessionRepository) GetId(session_id string) (string, error){
 	session, err := s.GetSession(session_id)
 	if err != nil {
 		return "", err
@@ -64,7 +64,7 @@ func (s *memorySessionRepository) GetId(session_id string) (string, error){
 }
 
 //IsLoggedIn takes a session id and makes a call to the OAuth provider to return if the session is valid
-func (s *memorySessionRepository) IsLoggedIn(session_id string) (bool, error){
+func (s *MemorySessionRepository) IsLoggedIn(session_id string) (bool, error){
 	_ , err := s.GetId(session_id)
 	if err != nil {
 		return false, err
@@ -73,7 +73,7 @@ func (s *memorySessionRepository) IsLoggedIn(session_id string) (bool, error){
 }
 
 //CreateSession takes in all the parameters for a session, creates it, then stores it in the sessionStore
-func (s *memorySessionRepository) CreateSession(access_token string, refresh_token string, token_type string, expiry time.Time, provider string)(string, error){
+func (s *MemorySessionRepository) CreateSession(access_token string, refresh_token string, token_type string, expiry time.Time, provider string)(string, error){
 	session := shortener.Session{Access_token: access_token, Refresh_token: refresh_token, Token_type: token_type, Expiry: expiry, Provider: provider}
 	var session_id string
 	for condition := true; condition; {
@@ -87,7 +87,7 @@ func (s *memorySessionRepository) CreateSession(access_token string, refresh_tok
 	return session_id, nil
 }
 
-func (s *memorySessionRepository) GetLoginRedirect (provider string, oauthstate string) (string, error){
+func (s *MemorySessionRepository) GetLoginRedirect(provider string, oauthstate string) (string, error){
 	if provider == "google"{
 		return s.googleOAuth.GetLoginRedirect(oauthstate), nil
 	} else if provider == "github"{
@@ -97,7 +97,7 @@ func (s *memorySessionRepository) GetLoginRedirect (provider string, oauthstate 
 	}
 }
 
-func (s *memorySessionRepository) CodeExchange (provider string, code string) ([]byte, error) {
+func (s *MemorySessionRepository) CodeExchange(provider string, code string) ([]byte, error) {
 	var val []byte
 	var err error
 	if provider == "google"{

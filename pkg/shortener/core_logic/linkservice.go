@@ -6,21 +6,21 @@ import (
 	"github.com/anyuan-chen/urlshortener/server/pkg/shortener"
 )
 
-type linkService struct {
+type LinkService struct {
 	redirectRepository shortener.RedirectRepository
 	sessionRepository shortener.SessionRepository
 	linkRepository shortener.LinkRepository
 }
 
-func NewLinkService (redirRepo shortener.RedirectRepository, sessRepo shortener.SessionRepository, linkRepo shortener.LinkRepository) *linkService {
-	return &linkService{
+func NewLinkService (redirRepo shortener.RedirectRepository, sessRepo shortener.SessionRepository, linkRepo shortener.LinkRepository) *LinkService {
+	return &LinkService{
 		redirectRepository: redirRepo,
 		sessionRepository: sessRepo,
 		linkRepository: linkRepo,
 	}
 }
 
-func (ls *linkService) Get(shortened_link string) (string, error){
+func (ls *LinkService) Get(shortened_link string) (string, error){
 	cacheLink, cacheErr := ls.redirectRepository.Get(shortened_link)
 	databaseLink, databaseErr := ls.linkRepository.Get(shortened_link)
 	if cacheErr != nil && databaseErr != nil {
@@ -32,7 +32,7 @@ func (ls *linkService) Get(shortened_link string) (string, error){
 	return databaseLink, nil
 }
 
-func (ls *linkService) CreateAuthenticated(id string, shortened_link string, original_link string, user_id string) (shortener.Link, error){
+func (ls *LinkService) CreateAuthenticated(id string, shortened_link string, original_link string, user_id string) (shortener.Link, error){
 	link, err := ls.linkRepository.Create(shortened_link, original_link, user_id) 
 	if err != nil {
 		return shortener.Link{}, err
@@ -43,7 +43,8 @@ func (ls *linkService) CreateAuthenticated(id string, shortened_link string, ori
 	}
 	return link, err
 }
-func (ls *linkService) CreateUnauthenticated(id string, shortened_link string, original_link string) (shortener.Link, error){
+
+func (ls *LinkService) CreateUnauthenticated(id string, shortened_link string, original_link string) (shortener.Link, error){
 	link, err := ls.linkRepository.Create(shortened_link, original_link, "guest") 
 	if err != nil {
 		return shortener.Link{}, err
@@ -54,7 +55,8 @@ func (ls *linkService) CreateUnauthenticated(id string, shortened_link string, o
 	}
 	return link, err
 }
-func (ls *linkService) GetByUserID(session_id string) ([]shortener.Link, error) {
+
+func (ls *LinkService) GetByUserID(session_id string) ([]shortener.Link, error) {
 	id, err := ls.sessionRepository.GetId(session_id);
 	if err != nil {
 		return nil, err
@@ -65,3 +67,4 @@ func (ls *linkService) GetByUserID(session_id string) ([]shortener.Link, error) 
 	}
 	return links, nil 
 }
+

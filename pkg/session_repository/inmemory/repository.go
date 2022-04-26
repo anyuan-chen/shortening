@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/anyuan-chen/urlshortener/server/pkg/oauth_provider/github"
@@ -15,8 +14,21 @@ import (
 )
 
 type memorySessionRepository struct {
-	sessionStore map[string] shortener.Session	
+	sessionStore map[string] shortener.Session
+	googleOAuth google.OAuthProviderGoogle	
+	githubOAuth github.OAuthProviderGithub
 }
+
+func (s *memorySessionRepository) CreateSessionRepository(){
+	callback_url := os.Getenv("REDIRECT_URL")
+	google_client_secret := os.Getenv("OAUTH_CLIENT_SECRET_GOOGLE")
+	google_client_id := os.Getenv("OAUTH_CLIENT_ID_GOOGLE")
+	s.googleOAuth = google.InitializeOAuthProvider(callback_url, google_client_id, google_client_secret)
+	github_client_secret := os.Getenv("OAUTH_CLIENT_SECRET_GITHUB")
+	github_client_id := os.Getenv("OAUTH_CLIENT_ID_GITHUB")
+	s.githubOAuth = github.InitializeOAuthProvider(callback_url, github_client_id, github_client_secret)
+}
+
 //GetSession takes a session id and returns any active session with that id
 func (s *memorySessionRepository) GetSession(session_id string) (shortener.Session, error){
 	if s.sessionStore[session_id] == (shortener.Session{}){
@@ -32,19 +44,14 @@ func (s *memorySessionRepository) GetId(session_id string) (string, error){
 	if err != nil {
 		return "", err
 	}
-	callback_url := os.Getenv("REDIRECT_URL")
-	client_secret := os.Getenv("OAUTH_CLIENT_SECRET" + strings.ToUpper(session.Provider))
-	client_id := os.Getenv("OAUTH_CLIENT_ID" + strings.ToUpper(session.Provider))
-	var provider shortener.OAuthProvider
-	//bad hardcoding
+	var data []byte
 	if session.Provider == "google"{
-		temp := google.InitializeOAuthProvider(callback_url, client_id, client_secret)
-		provider = &temp
-	} else {
-		temp := github.InitializeOAuthProvider(callback_url, client_id, client_secret)
-		provider = &temp
+		data, err = s.googleOAuth.GetUserInfo(session)
+	} else if session.Provider == "github"{
+		data, err = s.githubOAuth.GetUserInfo(session)
+	} else{
+		return "", err
 	}
-	data, err := provider.GetUserInfo(session)
 	if err != nil {
 		return "", err
 	}
@@ -78,4 +85,33 @@ func (s *memorySessionRepository) CreateSession(access_token string, refresh_tok
 	}
 	s.sessionStore[session_id] = session
 	return session_id, nil
+}
+
+func (s *memorySessionRepository) GetLoginRedirect (provider string, oauthstate string) (string, error){
+	if provider == "google"{
+		return s.googleOAuth.GetLoginRedirect(oauthstate), nil
+	} else if provider == "github"{
+		return s.githubOAuth.GetLoginRedirect(oauthstate), nil
+	} else{
+		return "", errors.New("invalid provider")
+	}
+}
+
+func (s *memorySessionRepository) CodeExchange (provider string, code string) ([]byte, error) {
+	var val []byte
+	var err error
+	if provider == "google"{
+		val, err = s.googleOAuth.CodeExchange(code)
+		if err != nil {
+			return nil, err
+		}
+	} else if provider == "github"{
+		val, err = s.githubOAuth.CodeExchange(code)
+		if err != nil {
+			return nil, err
+		}
+	} else{
+		return nil, errors.New("invalid provider")
+	}
+	return val, nil
 }

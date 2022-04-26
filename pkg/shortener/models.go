@@ -1,6 +1,8 @@
 package shortener
 
-import "time"
+import (
+	"time"
+)
 
 type Link struct {
 	Id string `json:"id"`
@@ -20,4 +22,3 @@ type Session struct {
 	Expiry time.Time `json:"expiry"`
 	Provider string `json:"provider"`
 }
-

@@ -15,7 +15,7 @@ type OAuthProviderGithub struct {
 	userEndpointURL string
 }
 
-func InitializeOAuthProviderGithub(callback_url string, client_id string, client_secret string) OAuthProviderGithub {
+func InitializeOAuthProvider(callback_url string, client_id string, client_secret string) OAuthProviderGithub {
 	userEndpointURL := "https://api.github.com/user"
 	config := &oauth2.Config{
 		RedirectURL: callback_url,
@@ -46,6 +46,7 @@ func (o *OAuthProviderGithub) CodeExchange(code string)([]byte, error){
 	}
 	return val, nil
 }
+
 func (o *OAuthProviderGithub) GetUserInfo(session shortener.Session)([]byte, error){
 	token := oauth2.Token{
 		AccessToken: session.Access_token,

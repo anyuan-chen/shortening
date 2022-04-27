@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"os"
 
@@ -18,11 +19,11 @@ func main() {
 	r := mux.NewRouter()
     link_handler, err := cockroachdb.CreateCockroachDB(os.Getenv("COCKROACH_DB_DATABASE_URL"))
     if err != nil {
-        panic("error creating link_handler")
+        log.Fatal("error creating link_handler" + err.Error())
     }
     redirect_handler, err := redis.CreateRedisRepository(os.Getenv("REDIS_ADDR"), os.Getenv("REDIS_PASSWORD"))
     if err != nil {
-        panic("error creating redirect_handler")
+        log.Fatal("error creating redirect_handler"  + err.Error())
     }
     session_handler := &inmemory.MemorySessionRepository{}
     session_handler.CreateSessionRepository()

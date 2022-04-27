@@ -1,9 +1,12 @@
 package cockroachdb
 
 import (
+	"context"
 	"database/sql"
 	"hash/fnv"
 	"strconv"
+
+	"github.com/cockroachdb/cockroach-go/crdb"
 
 	"github.com/anyuan-chen/urlshortener/server/pkg/shortener"
 )
@@ -21,7 +24,15 @@ func CreateCockroachDB(database_url string) (CockroachLinkRepository, error){
 }
 
 func (c *CockroachLinkRepository) CreateUser(id string) error {
-	_, err := c.cockroach.Exec("INSERT INTO users (id) VALUES ($1)", id)
+	executeQuery := func (tx *sql.Tx, id string) error {
+		if _, err := tx.Exec("INSERT INTO users (id) VALUES ($1)", id); err != nil {
+			return err
+		}
+		return nil
+	}
+	err := crdb.ExecuteTx(context.Background(), c.cockroach, nil, func (tx *sql.Tx) error {
+		return executeQuery(tx, id)
+	})	
 	if err != nil {
 		return err
 	}
@@ -39,7 +50,15 @@ func (c *CockroachLinkRepository) Create(shortened_link string, original_link st
 	h := fnv.New64a()
 	h.Write([]byte(shortened_link + original_link + user_id))
 	id := strconv.FormatUint(h.Sum64(), 10)
-	_, err := c.cockroach.Exec("INSERT INTO links (id, original_link, shortened_link, user_id) VALUES ($1, $2, $3, $4)", id, shortened_link, original_link, user_id)
+	executeQuery := func (tx *sql.Tx, id string) error {
+		if _, err := tx.Exec("INSERT INTO links (id, original_link, shortened_link, user_id) VALUES ($1, $2, $3, $4)", id, original_link, shortened_link, user_id); err != nil {
+			return err
+		}
+		return nil
+	}
+	err := crdb.ExecuteTx(context.Background(), c.cockroach, nil, func (tx *sql.Tx) error {
+		return executeQuery(tx, id)
+	})	
 	if err != nil {
 		return shortener.Link{}, err
 	}

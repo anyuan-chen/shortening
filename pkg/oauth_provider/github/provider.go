@@ -2,7 +2,6 @@ package github
 
 import (
 	"context"
-	"encoding/json"
 	"io"
 
 	"github.com/anyuan-chen/urlshortener/server/pkg/shortener"
@@ -35,16 +34,12 @@ func (o *OAuthProviderGithub) GetLoginRedirect(oauthstate string) string{
 	return o.config.AuthCodeURL(oauthstate)
 }
 
-func (o *OAuthProviderGithub) CodeExchange(code string)([]byte, error){
+func (o *OAuthProviderGithub) CodeExchange(code string)(*oauth2.Token, error){
 	token, err := o.config.Exchange(context.Background(), code)
 	if err != nil {
 		return nil, err
 	}
-	val, err := json.Marshal(token)
-	if err != nil {
-		return nil, err
-	}
-	return val, nil
+	return token, nil
 }
 
 func (o *OAuthProviderGithub) GetUserInfo(session shortener.Session)([]byte, error){

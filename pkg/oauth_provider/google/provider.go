@@ -2,7 +2,6 @@ package google
 
 import (
 	"context"
-	"encoding/json"
 	"io"
 
 	"github.com/anyuan-chen/urlshortener/server/pkg/shortener"
@@ -36,16 +35,12 @@ func (o *OAuthProviderGoogle) GetLoginRedirect(oauthstate string) string{
 	return o.config.AuthCodeURL(oauthstate, oauth2.AccessTypeOffline)
 }
 
-func (o *OAuthProviderGoogle) CodeExchange(code string)([]byte, error){
+func (o *OAuthProviderGoogle) CodeExchange(code string)(*oauth2.Token, error){
 	token, err := o.config.Exchange(context.Background(), code)
 	if err != nil {
 		return nil, err
 	}
-	val, err := json.Marshal(token)
-	if err != nil {
-		return nil, err
-	}
-	return val, nil
+	return token, nil
 }
 
 func (o *OAuthProviderGoogle) GetUserInfo(session shortener.Session)([]byte, error){

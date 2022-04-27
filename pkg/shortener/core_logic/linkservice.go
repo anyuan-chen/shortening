@@ -2,8 +2,10 @@ package service
 
 import (
 	"errors"
+	"time"
 
 	"github.com/anyuan-chen/urlshortener/server/pkg/shortener"
+	"golang.org/x/oauth2"
 )
 
 type LinkService struct {
@@ -68,3 +70,25 @@ func (ls *LinkService) GetByUserID(session_id string) ([]shortener.Link, error) 
 	return links, nil 
 }
 
+func (ls *LinkService) Login (provider string, oauthstate string) (string, error) {
+	url, err := ls.sessionRepository.GetLoginRedirect(provider, oauthstate)
+	if err != nil {
+		return "", err
+	}
+	return url, nil
+}
+
+func (ls *LinkService) Callback (provider string, code string) (*oauth2.Token, error) {
+	token, err := ls.sessionRepository.CodeExchange(provider, code)
+	if err != nil {
+		return nil, err
+	}
+	return token, nil
+}
+func (ls *LinkService) CreateSession(access_token string, refresh_token string, token_type string, expiry time.Time, provider string)(string, error){
+	session_id, err := ls.sessionRepository.CreateSession(access_token, refresh_token, token_type, expiry, provider)
+	if err != nil {
+		return "", err
+	}
+	return session_id, nil
+}

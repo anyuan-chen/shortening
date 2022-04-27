@@ -11,6 +11,7 @@ import (
 	"github.com/anyuan-chen/urlshortener/server/pkg/oauth_provider/google"
 	"github.com/anyuan-chen/urlshortener/server/pkg/shortener"
 	"github.com/google/uuid"
+	"golang.org/x/oauth2"
 )
 
 type MemorySessionRepository struct {
@@ -97,8 +98,8 @@ func (s *MemorySessionRepository) GetLoginRedirect(provider string, oauthstate s
 	}
 }
 
-func (s *MemorySessionRepository) CodeExchange(provider string, code string) ([]byte, error) {
-	var val []byte
+func (s *MemorySessionRepository) CodeExchange(provider string, code string) (*oauth2.Token, error) {
+	var val *oauth2.Token
 	var err error
 	if provider == "google"{
 		val, err = s.googleOAuth.CodeExchange(code)

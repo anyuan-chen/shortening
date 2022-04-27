@@ -94,3 +94,10 @@ func (ls *LinkService) CreateSession(access_token string, refresh_token string, 
 	}
 	return session_id, nil
 }
+func (ls *LinkService) ValidateSession(session_id string) (string, error) {
+	info, err := ls.sessionRepository.GetId(session_id)
+	if err != nil {
+		return "", err 
+	}
+	return info, nil
+}

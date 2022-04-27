@@ -14,5 +14,6 @@ type LinkService interface {
 	Login(provider string, oauthstate string) (string, error)
 	Callback(provider string, code string) (*oauth2.Token, error)
 	CreateSession(access_token string, refresh_token string, token_type string, expiry time.Time, provider string)(string, error)
+	ValidateSession(session_id string) (string, error)
 }
 

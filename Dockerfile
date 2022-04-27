@@ -9,5 +9,6 @@ RUN apk update
 RUN apk add git
 COPY . ./
 RUN cd cmd
+RUN ls
 RUN go build -o /docker-gs-ping
 CMD ["/docker-gs-ping"]

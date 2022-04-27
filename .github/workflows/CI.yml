@@ -19,9 +19,13 @@ jobs:
     env:
       REDIS_ADDR: ${{ secrets.REDIS_ADDR }}
       REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
-      GOOGLE_OAUTH_CLIENT_ID: ${{secrets.GOOGLE_OAUTH_CLIENT_ID}}
-      GOOGLE_OAUTH_CLIENT_SECRET: ${{secrets.GOOGLE_OAUTH_CLIENT_SECRET}}
+      OAUTH_CLIENT_SECRET_GOOGLE: ${{secrets.GOOGLE_OAUTH_CLIENT_ID}}
+      OAUTH_CLIENT_SECRET_GITHUB: ${{secrets.GOOGLE_OAUTH_CLIENT_SECRET}}
       COCKROACH_DB_DATABASE_URL: ${{secrets.COCKROACH_DB_DATABASE_URL}}
+      OAUTH_CLIENT_ID_GOOGLE: ${{secrets.OAUTH_CLIENT_ID_GOOGLE}}
+      OAUTH_CLIENT_ID_GITHUB: ${{secrets.OAUTH_CLIENT_ID_GITHUB}}
+      FRONTEND_URL: ${{secrets.FRONTEND_URL}}
+      REDIRECT_URL: ${{secrets.REDIRECT_URL}}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:

@@ -8,5 +8,6 @@ RUN go mod download
 RUN apk update
 RUN apk add git
 COPY . ./
+RUN cd cmd
 RUN go build -o /docker-gs-ping
 CMD ["/docker-gs-ping"]

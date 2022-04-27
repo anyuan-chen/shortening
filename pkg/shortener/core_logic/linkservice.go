@@ -50,7 +50,8 @@ func (ls *LinkService) CreateAuthenticated(original_link string, user_id string)
 	return link, err
 }
 
-func (ls *LinkService) CreateUnauthenticated(id string, shortened_link string, original_link string) (shortener.Link, error){
+func (ls *LinkService) CreateUnauthenticated(original_link string) (shortener.Link, error){
+	shortened_link := ls.shortLinkCreator.GenerateShortLink(original_link, "guest")
 	link, err := ls.linkRepository.Create(shortened_link, original_link, "guest") 
 	if err != nil {
 		return shortener.Link{}, err

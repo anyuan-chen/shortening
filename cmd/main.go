@@ -9,6 +9,7 @@ import (
 	"github.com/anyuan-chen/urlshortener/server/pkg/link_repository/cockroachdb"
 	"github.com/anyuan-chen/urlshortener/server/pkg/redirect_repository/redis"
 	"github.com/anyuan-chen/urlshortener/server/pkg/session_repository/inmemory"
+	useridsha256 "github.com/anyuan-chen/urlshortener/server/pkg/short_link_creator/user_id_sha256"
 	service "github.com/anyuan-chen/urlshortener/server/pkg/shortener/core_logic"
 	"github.com/gorilla/mux"
 )
@@ -27,13 +28,14 @@ func main() {
     }
     session_handler := &inmemory.MemorySessionRepository{}
     session_handler.CreateSessionRepository()
-    service := service.NewLinkService(&redirect_handler, session_handler, &link_handler)
+    link_shortener := useridsha256.ShortLinkCreator{}
+    service := service.NewLinkService(&redirect_handler, session_handler, &link_handler, &link_shortener)
     api := api.NewService(service)
     http.HandleFunc("/auth/login", api.Login)
     http.HandleFunc("/auth/callback", api.Callback)
     http.HandleFunc("/redirect/{url}", api.Redirect)
-    http.Handle("/authcreate/", api.Authenticate(api.CreateAuthenticated))
-    http.HandleFunc("/unauthcreate/", api.CreateAuthenticated)
+    http.Handle("/authcreate/", api.Authenticate(api.Create))
+    http.HandleFunc("/unauthcreate/", api.Create)
 	http.Handle("/", &Server{r})
 	http.ListenAndServe(":8080", nil)
 }

@@ -23,6 +23,7 @@ func NewService(linkService shortener.LinkService) Service{
 
 //Login is meant as an HTTP endpoint for users to login into the platform.
 //This endpoint redirects to the user-parameter specified OAuth endpoint.
+//takes queries of the form: http://serverurlhere.end/auth/login?provider=providerhere
 func (s *Service ) Login(w http.ResponseWriter, r *http.Request){
 	q := r.URL.Query()
 	provider := q["provider"]
@@ -52,7 +53,7 @@ func (s *Service ) Login(w http.ResponseWriter, r *http.Request){
 }
 
 //Callback is an HTTP endpoint for the OAuth providers once they have logged
-//into the platform. 
+//into the platform. Not meant to be used outside of the callbacks from OAuth providers.
 func (s *Service ) Callback(w http.ResponseWriter, r *http.Request){
 	oauthstate, _ := r.Cookie("oauthstate")
 	if r.FormValue("state") != oauthstate.Value{

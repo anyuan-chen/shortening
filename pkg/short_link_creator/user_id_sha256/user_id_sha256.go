@@ -1,4 +1,4 @@
-package shortlinkcreator
+package useridsha256
 
 import (
 	"crypto/sha256"

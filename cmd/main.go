@@ -29,7 +29,8 @@ func main() {
     session_handler.CreateSessionRepository()
     service := service.NewLinkService(&redirect_handler, session_handler, &link_handler)
     api := api.NewService(service)
-    http.HandleFunc("/login", api.Login)
+    http.HandleFunc("/auth/login", api.Login)
+    http.HandleFunc("/auth/callback", api.Callback)
 	http.Handle("/", &Server{r})
 	http.ListenAndServe(":8080", nil)
 }

@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/anyuan-chen/urlshortener/server/pkg/shortener"
@@ -78,7 +79,8 @@ func (ls *LinkService) Login (provider string, oauthstate string) (string, error
 	return url, nil
 }
 
-func (ls *LinkService) Callback (provider string, code string) (*oauth2.Token, error) {
+func (ls *LinkService) Callback(provider string, code string) (*oauth2.Token, error) {
+	fmt.Print("made it to callback")
 	token, err := ls.sessionRepository.CodeExchange(provider, code)
 	if err != nil {
 		return nil, err

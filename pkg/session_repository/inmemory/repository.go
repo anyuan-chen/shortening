@@ -4,6 +4,7 @@ package inmemory
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"time"
 
@@ -21,6 +22,7 @@ type MemorySessionRepository struct {
 }
 
 func (s *MemorySessionRepository) CreateSessionRepository(){
+	s.sessionStore = make(map[string] shortener.Session)
 	callback_url := os.Getenv("REDIRECT_URL")
 	google_client_secret := os.Getenv("OAUTH_CLIENT_SECRET_GOOGLE")
 	google_client_id := os.Getenv("OAUTH_CLIENT_ID_GOOGLE")
@@ -79,7 +81,7 @@ func (s *MemorySessionRepository) CreateSession(access_token string, refresh_tok
 	var session_id string
 	for condition := true; condition; {
 		session_id = uuid.New().String()
-		if emptySession := (shortener.Session{}); s.sessionStore[session_id] != emptySession  {
+		if emptySession := (shortener.Session{}); s.sessionStore[session_id] == emptySession  {
 			condition = false
 			break;
 		}
@@ -106,6 +108,7 @@ func (s *MemorySessionRepository) CodeExchange(provider string, code string) (*o
 		if err != nil {
 			return nil, err
 		}
+		fmt.Print("made it after sessionrepo")
 	} else if provider == "github"{
 		val, err = s.githubOAuth.CodeExchange(code)
 		if err != nil {

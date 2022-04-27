@@ -5,8 +5,8 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"net/http"
-	"net/url"
 	"os"
 	"time"
 
@@ -24,11 +24,7 @@ func NewService(linkService shortener.LinkService) Service{
 //Login is meant as an HTTP endpoint for users to login into the platform.
 //This endpoint redirects to the user-parameter specified OAuth endpoint.
 func (s *Service ) Login(w http.ResponseWriter, r *http.Request){
-	url, err := url.Parse(r.URL.String())
-	if err != nil {
-		http.Error(w, "error reading your url", http.StatusInternalServerError)
-	}
-	q := url.Query()
+	q := r.URL.Query()
 	provider := q["provider"]
 	if len(provider) != 1{
 		http.Error(w, "bad number of url params", http.StatusInternalServerError)
@@ -37,16 +33,18 @@ func (s *Service ) Login(w http.ResponseWriter, r *http.Request){
 	var expiration = time.Now().Add(20 * time.Minute)
 	b := make([]byte, 16)
 	rand.Read(b)
-	state["random"] = base64.URLEncoding.EncodeToString(b) 
-	state["provider"] = provider
+	state["random"] = b
+	state["provider"] = provider[0]
+	fmt.Println(provider)
+	//b = append(b, []byte(state["provider"].(string))... )\
 	jsonByte, err := json.Marshal(state)
+	encoded_state := base64.URLEncoding.EncodeToString(jsonByte) 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	state_string := string(jsonByte)
-	cookie := http.Cookie{Name: "oauthstate", Value: state_string, Expires: expiration}
+	cookie := http.Cookie{Name: "oauthstate", Value: encoded_state, Expires: expiration}
 	http.SetCookie(w, &cookie)
-	redirect_url, err := s.linkService.Login(provider[0], state_string)
+	redirect_url, err := s.linkService.Login(provider[0], encoded_state)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -61,15 +59,27 @@ func (s *Service ) Callback(w http.ResponseWriter, r *http.Request){
 		http.Error(w, "bad oauth state", http.StatusInternalServerError)
 	}
 	var stateData map[string]interface{}
-	err := json.Unmarshal([]byte(r.FormValue("state")), &stateData)
+	decoded_base64, err := base64.StdEncoding.DecodeString(r.FormValue("state"))
+	//fmt.Println(decoded_base64)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	token, err := s.linkService.Callback(stateData["provider"].(string), r.FormValue("code"))
+	err = json.Unmarshal(decoded_base64, &stateData)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+	//fmt.Println(string(decoded_base64))
+	provider := stateData["provider"].(string)
+	code := r.FormValue("code")
+	fmt.Println("code: " + code, "provider: " + provider )
+	token, err := s.linkService.Callback(provider, code)
+	fmt.Println("made it after callback")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	//fmt.Println(token)
 	session_id, err := s.linkService.CreateSession(token.AccessToken, token.RefreshToken, token.TokenType, token.Expiry, stateData["provider"].(string))
+	fmt.Println("made it after session_id")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

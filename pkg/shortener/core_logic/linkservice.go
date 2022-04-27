@@ -13,13 +13,15 @@ type LinkService struct {
 	redirectRepository shortener.RedirectRepository
 	sessionRepository shortener.SessionRepository
 	linkRepository shortener.LinkRepository
+	shortLinkCreator shortener.ShortLinkCreator
 }
 
-func NewLinkService (redirRepo shortener.RedirectRepository, sessRepo shortener.SessionRepository, linkRepo shortener.LinkRepository) *LinkService {
+func NewLinkService (redirRepo shortener.RedirectRepository, sessRepo shortener.SessionRepository, linkRepo shortener.LinkRepository, shortLinkCreator shortener.ShortLinkCreator) *LinkService {
 	return &LinkService{
 		redirectRepository: redirRepo,
 		sessionRepository: sessRepo,
 		linkRepository: linkRepo,
+		shortLinkCreator: shortLinkCreator,
 	}
 }
 
@@ -35,7 +37,8 @@ func (ls *LinkService) Get(shortened_link string) (string, error){
 	return databaseLink, nil
 }
 
-func (ls *LinkService) CreateAuthenticated(id string, shortened_link string, original_link string, user_id string) (shortener.Link, error){
+func (ls *LinkService) CreateAuthenticated(original_link string, user_id string) (shortener.Link, error){
+	shortened_link := ls.shortLinkCreator.GenerateShortLink(original_link, user_id)
 	link, err := ls.linkRepository.Create(shortened_link, original_link, user_id) 
 	if err != nil {
 		return shortener.Link{}, err
@@ -100,4 +103,11 @@ func (ls *LinkService) ValidateSession(session_id string) (string, error) {
 		return "", err 
 	}
 	return info, nil
+}
+func (ls *LinkService) GetSession( session_id string)(shortener.Session, error){
+	session, err := ls.sessionRepository.GetSession(session_id)
+	if err != nil {
+		return shortener.Session{}, err
+	}
+	return session, nil
 }

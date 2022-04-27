@@ -18,6 +18,7 @@ func (s *Service ) Authenticate(next func (w http.ResponseWriter, r *http.Reques
 		}
 		type key string
 		ctx = context.WithValue(ctx, key("id") , user_id)
+		ctx = context.WithValue(ctx, key("session_id") , session_id)
 		next(w, r.WithContext(ctx))
 	})
 }

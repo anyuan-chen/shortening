@@ -33,6 +33,7 @@ func main() {
     http.HandleFunc("/auth/callback", api.Callback)
     http.HandleFunc("/redirect/{url}", api.Redirect)
     http.Handle("/authcreate/", api.Authenticate(api.CreateAuthenticated))
+    http.HandleFunc("/unauthcreate/", api.CreateAuthenticated)
 	http.Handle("/", &Server{r})
 	http.ListenAndServe(":8080", nil)
 }

@@ -48,6 +48,14 @@ func (r *RedisRedirectRepository) Create(shortened_link string, original_link st
 	}
 	return nil
 }
+
+func (r *RedisRedirectRepository) Delete(shortened_link string) error {
+	_, err := r.redis.Del(context.Background(), shortened_link).Result()
+	if err != nil {
+		return err
+	}
+	return nil
+}
 // type SessionRepository interface {
 // 	CreateSessionRepository()
 // 	GetSession(session_id string) (Session, error)

@@ -5,6 +5,9 @@ import (
 	"net/http"
 )
 
+//Authenticate is HTTP middleware that takes the next function, then attempts to verify if the user
+//has a valid active session. If they are authenticated, the user_id and their session_id are passed on
+//through context to the next HTTP handler function
 func (s *Service ) Authenticate(next func (w http.ResponseWriter, r *http.Request)) http.Handler {
 	return http.HandlerFunc(func (w http.ResponseWriter, r *http.Request) {
 		session_id, err := r.Cookie("session_id")

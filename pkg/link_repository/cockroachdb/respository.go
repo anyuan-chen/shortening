@@ -117,7 +117,7 @@ func (c *CockroachLinkRepository) DeleteUser(user_id string)(error){
 	return nil
 }
 
-func (c *CockroachLinkRepository) DeleteLink (id string)(error){
+func (c *CockroachLinkRepository) DeleteLink(id string)(error){
 	executeQuery := func (tx *sql.Tx, id string) error {
 		if _, err := tx.Exec("DELETE FROM links WHERE id=$1", id); err != nil {
 			return err

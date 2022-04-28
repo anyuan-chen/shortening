@@ -31,13 +31,13 @@ func main() {
     link_shortener := useridsha256.ShortLinkCreator{}
     service := service.NewLinkService(&redirect_handler, session_handler, &link_handler, &link_shortener)
     api := api.NewService(service)
-    http.HandleFunc("/auth/login", api.Login)
-    http.HandleFunc("/auth/callback", api.Callback)
-    http.HandleFunc("/redirect/{url}", api.Redirect)
-    http.Handle("/authcreate/", api.Authenticate(api.Create))
-    http.HandleFunc("/unauthcreate/", api.Create)
-	http.Handle("/", &Server{r})
-	http.ListenAndServe(":8080", nil)
+    server := &Server{r}
+    server.r.HandleFunc("/auth/login", api.Login)
+    server.r.HandleFunc("/auth/callback", api.Callback)
+    server.r.HandleFunc("/redirect/{url}", api.Redirect)
+    server.r.Handle("/authcreate", api.Authenticate(api.Create))
+    server.r.HandleFunc("/unauthcreate", api.Create)
+	http.ListenAndServe(":8080", server)
 }
 
 func (s *Server) ServeHTTP(rw http.ResponseWriter, req *http.Request) {

@@ -29,6 +29,7 @@ func (s *Service ) Login(w http.ResponseWriter, r *http.Request){
 	provider := q["provider"]
 	if len(provider) != 1{
 		http.Error(w, "bad number of url params", http.StatusInternalServerError)
+		return
 	}
 	state := make(map[string]interface{})
 	var expiration = time.Now().Add(20 * time.Minute)
@@ -42,12 +43,14 @@ func (s *Service ) Login(w http.ResponseWriter, r *http.Request){
 	encoded_state := base64.URLEncoding.EncodeToString(jsonByte) 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	cookie := http.Cookie{Name: "oauthstate", Value: encoded_state, Expires: expiration}
 	http.SetCookie(w, &cookie)
 	redirect_url, err := s.linkService.Login(provider[0], encoded_state)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	http.Redirect(w, r, redirect_url, http.StatusTemporaryRedirect)
 }
@@ -58,16 +61,19 @@ func (s *Service ) Callback(w http.ResponseWriter, r *http.Request){
 	oauthstate, _ := r.Cookie("oauthstate")
 	if r.FormValue("state") != oauthstate.Value{
 		http.Error(w, "bad oauth state", http.StatusInternalServerError)
+		return
 	}
 	var stateData map[string]interface{}
 	decoded_base64, err := base64.StdEncoding.DecodeString(r.FormValue("state"))
 	//fmt.Println(decoded_base64)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	err = json.Unmarshal(decoded_base64, &stateData)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	//fmt.Println(string(decoded_base64))
 	provider := stateData["provider"].(string)
@@ -77,12 +83,14 @@ func (s *Service ) Callback(w http.ResponseWriter, r *http.Request){
 	fmt.Println("made it after callback")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	//fmt.Println(token)
 	session_id, err := s.linkService.CreateSession(token.AccessToken, token.RefreshToken, token.TokenType, token.Expiry, stateData["provider"].(string))
 	fmt.Println("made it after session_id")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	session_cookie := http.Cookie{
 		Name: "session_id",

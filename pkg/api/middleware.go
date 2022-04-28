@@ -13,11 +13,13 @@ func (s *Service ) Authenticate(next func (w http.ResponseWriter, r *http.Reques
 		session_id, err := r.Cookie("session_id")
 		if err != nil {
 			http.Error(w, "bad session id", http.StatusBadRequest)
+			return
 		}	
 		ctx := r.Context()
 		user_id, err := s.linkService.ValidateSession(session_id.Value)
 		if err != nil {
 			http.Error(w, "no active session", http.StatusUnauthorized)
+			return
 		}
 		type key string
 		ctx = context.WithValue(ctx, key("id") , user_id)

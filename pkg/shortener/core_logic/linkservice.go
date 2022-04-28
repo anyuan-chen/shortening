@@ -58,7 +58,7 @@ func (ls *LinkService) CreateUnauthenticated(original_link string) (shortener.Li
 	}
 	err = ls.redirectRepository.Create(shortened_link, original_link, "guest")
 	if err != nil {
-		err = errors.New("cache error - successfully saved into main database")
+		return shortener.Link{}, err
 	}
 	return link, err
 }

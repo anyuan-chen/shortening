@@ -41,8 +41,8 @@ func (r *RedisRedirectRepository) Get(shortened_link string) (string, error){
 }
 
 func (r *RedisRedirectRepository) Create(shortened_link string, original_link string, user_id string) error{
-	err := r.redis.Set(context.Background(), shortened_link, original_link, 0)
-	if err != nil {
+	status := r.redis.Set(context.Background(), shortened_link, original_link, 0)
+	if status.Err() != nil  {
 		msg := fmt.Sprintf("failed to insert shortened %s and original %s into redis", shortened_link, original_link) 
 		return errors.New(msg)
 	}

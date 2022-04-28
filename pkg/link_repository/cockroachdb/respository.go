@@ -94,9 +94,41 @@ func (c *CockroachLinkRepository) GetByUserID(user_id string)([]shortener.Link, 
 
 func (c *CockroachLinkRepository) GetUser(user_id string) (string, error){
 	var id string
-	err := c.cockroach.QueryRow("SELECT * FROM users WHERE id=$1", id).Scan(&id)
+	err := c.cockroach.QueryRow("SELECT * FROM users WHERE id=$1", user_id).Scan(&id)
 	if err != nil {
 		return "", err
 	}
 	return id, nil
+}
+
+func (c *CockroachLinkRepository) DeleteUser(user_id string)(error){
+	executeQuery := func (tx *sql.Tx, id string) error {
+		if _, err := tx.Exec("DELETE FROM users WHERE id=$1", id); err != nil {
+			return err
+		}
+		return nil
+	}
+	err := crdb.ExecuteTx(context.Background(), c.cockroach, nil, func (tx *sql.Tx) error {
+		return executeQuery(tx, user_id)
+	})	
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *CockroachLinkRepository) DeleteLink (id string)(error){
+	executeQuery := func (tx *sql.Tx, id string) error {
+		if _, err := tx.Exec("DELETE FROM links WHERE id=$1", id); err != nil {
+			return err
+		}
+		return nil
+	}
+	err := crdb.ExecuteTx(context.Background(), c.cockroach, nil, func (tx *sql.Tx) error {
+		return executeQuery(tx, id)
+	})	
+	if err != nil {
+		return err
+	}
+	return nil
 }

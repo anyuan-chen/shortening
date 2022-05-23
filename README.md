@@ -12,5 +12,5 @@ specific services need environment varibles set
 
 eg. redis will need REDIS_ADDR and REDIS_PASSWORD
 
-
+(readme WIP)
 

@@ -4,7 +4,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-
 	"github.com/anyuan-chen/urlshortener/server/pkg/api"
 	"github.com/anyuan-chen/urlshortener/server/pkg/link_repository/cockroachdb"
 	"github.com/anyuan-chen/urlshortener/server/pkg/redirect_repository/redis"
